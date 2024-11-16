@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:13
+    container_name: db
+    env_file:
+      - backend\.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    env_file:
+      - ./backend/.env
+    ports:
+      - 8001:80
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

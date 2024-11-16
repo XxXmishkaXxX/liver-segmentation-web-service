@@ -1,4 +1,5 @@
 env/
 venv/
+.env
 __pycache__/
 backend\test_api\.pytest_cache\
