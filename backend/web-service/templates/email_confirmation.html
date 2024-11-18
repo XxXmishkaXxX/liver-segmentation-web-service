@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Код подтверждения</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        .code {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Здравствуйте, {{ user.first_name }}!</h2>
+        <p>Спасибо за регистрацию. Пожалуйста, используйте код ниже для подтверждения вашей электронной почты:</p>
+        <p class="code">{{ code }}</p>
+        <p>Код действителен в течение 5 минут.</p>
+        <p>С уважением,<br>Команда поддержки.</p>
+    </div>
+</body>
+</html>
