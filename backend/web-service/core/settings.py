@@ -30,7 +30,8 @@ INSTALLED_APPS = [
     
     
     #apps
-    'users.apps.UsersConfig'    
+    'users.apps.UsersConfig',
+    'predictor.apps.PredictorConfig',    
 ]
 
 MIDDLEWARE = [
@@ -111,8 +112,20 @@ DATABASES = {
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Указывает на Redis, работающий на localhost
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Используется для хранения результатов задач
+
+# Настройки для Redis, если хотите использовать кэш или другие возможности Redis
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://localhost:6379/1',  # Указываем отдельную базу данных Redis для кэширования
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -128,10 +141,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
