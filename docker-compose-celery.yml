@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  celery:
+    image: celery:latest
+    container_name: celery_worker
+    command: celery -A web-service.celery worker --loglevel=info --concurrency=6
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+
+  flower:
+    image: mher/flower
+    container_name: flower
+    command: flower --broker=redis://redis:6379
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
