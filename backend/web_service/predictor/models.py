@@ -40,6 +40,7 @@ class MaskImage(models.Model):
         return f"Mask {self.id} - Image ID: {self.original_img.id}"
     
     def save(self, *args, **kwargs):
+        
         file_name = self.image_file.name.split('/')[-1]
         self.image_file.name = f"{self.original_img.user.id}/batch_{self.original_img.batch.id}id/masks/{file_name}"
         super().save(*args, **kwargs)
