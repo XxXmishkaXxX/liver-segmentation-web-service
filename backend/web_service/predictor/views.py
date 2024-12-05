@@ -9,8 +9,23 @@ from django.shortcuts import get_object_or_404
 from .tasks import process_images_in_batch
 from rest_framework import pagination
 from .utils.update_mask import update_mask
+from celery.result import AsyncResult
 
 
+class TaskStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, task_id):
+        # Проверяем, что задача связана с пользователем
+        result = AsyncResult(task_id)
+        
+        if not result.ready():
+            return Response({"status": result.status, "message": "Task is still running"}, status=200)
+
+        return Response({
+            "task_id": task_id,
+            "status": result.status,
+        })
 
 class UploadImagesView(APIView):
     permission_classes = [IsAuthenticated]
