@@ -4,8 +4,52 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import RegisterSerializer, ConfirmEmailSerializer, ResendCodeSerializer
-from .models import User
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import AuthenticationFailed
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    def finalize_response(self, request, response, *args, **kwargs):
+        if response.status_code == 200:
+            refresh = response.data.get("refresh")
+            if refresh:
+                # Устанавливаем refresh token в HttpOnly куку
+                response.set_cookie(
+                    key="refresh_token",
+                    value=refresh,
+                    httponly=True,
+                    secure=False,  # Работает только с HTTPS
+                    samesite="Strict",  # Защищает от CSRF
+                    max_age=365 * 24 * 60 * 60,  # Истекает через 365 дней
+                )
+        return super().finalize_response(request, response, *args, **kwargs)
+
+
+class RefreshTokenView(APIView):
+    def post(self, request):
+        # Получаем refresh токен из куки
+        refresh_token = request.COOKIES.get('refresh_token')
+        
+        if not refresh_token:
+            raise AuthenticationFailed('Refresh token not provided in cookies')
+        
+        try:
+            # Декодируем refresh токен
+            refresh = RefreshToken(refresh_token)
+        except Exception as e:
+            raise AuthenticationFailed('Invalid refresh token')
+
+        # Создаем новый access токен
+        access_token = refresh.access_token
+
+        # Возвращаем новый access токен
+        return Response({
+            'access_token': str(access_token)
+        })
+
 
 
 class RegisterView(APIView):
