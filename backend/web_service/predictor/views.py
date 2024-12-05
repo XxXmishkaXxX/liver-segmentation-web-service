@@ -8,6 +8,8 @@ from .serializers import ModelPredictionBatchSerializer
 from django.shortcuts import get_object_or_404
 from .tasks import process_images_in_batch
 from rest_framework import pagination
+from .utils.update_mask import update_mask
+
 
 
 class UploadImagesView(APIView):
@@ -113,8 +115,8 @@ class GetBatchImagesView(APIView):
 
             if mask:
                 image_pairs.append({
-                    'original': original.image_file.url,
-                    'mask': mask.image_file.url
+                    'original': (original.image_file.url, original.id),
+                    'mask': (mask.image_file.url, mask.id)
                 })
         
         # Пагинация
@@ -124,5 +126,31 @@ class GetBatchImagesView(APIView):
     
 
 
+class UpdateMaskImage(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser]
+
+    def put(self, request, mask_id, *args, **kwargs):
+        # Попытаться найти маску по mask_id
+        try:
+            mask = MaskImage.objects.get(id=mask_id)
+        except MaskImage.DoesNotExist:
+            return Response({"error": "Mask not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        if mask.original_img.user != request.user:
+                return Response({"error": "You do not have permission to edit this mask."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Проверка, есть ли новое изображение в запросе
+        new_mask = request.FILES.get('new_mask')
+        
+        if not new_mask:
+            return Response({"error": "No new mask provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+        update_mask(mask, new_mask)
+
+        # Возвращаем обновленные данные маски
+        return Response({"message": "Mask updated successfully"}, status=status.HTTP_200_OK)
+        
 
 

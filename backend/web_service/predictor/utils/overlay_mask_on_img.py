@@ -1,32 +1,8 @@
 import numpy as np
-import tensorflow as tf
-from keras.models import load_model
-import os
-from pydicom import dcmread
-import cv2
-from .model.custom_objects import dice_coef, dice_coef_loss
+import cv2 #type: ignore
 from django.core.files.base import ContentFile
 
-# Загрузка модели
 
-model_path = os.path.join(os.path.dirname(__file__), 'model', 'best_model.keras')
- 
-model = load_model(model_path, custom_objects={'dice_coef': dice_coef, 'dice_coef_loss': dice_coef_loss})
-
-def run_prediction_on_image(image_path: str, image_size=(128, 128)):
-    image = dcmread(image_path)
-    image = image.pixel_array
-    image = cv2.resize(image, image_size)  # Ресайз на 128x128
-    image = np.expand_dims(image, axis=-1)  # Добавляем размерность канала (1, 128, 128, 1)
-    image = image / 255.0  # Нормализация изображения
-
-    image = np.expand_dims(image, axis=0)  # Добавляем batch dimension (1, 128, 128, 1)
-    
-    # Предсказание маски моделью
-    predicted_mask = model.predict(image)[0]
-    
-
-    return image, predicted_mask
 
 # Функция для наложения маски на изображение
 def overlay_mask_on_image(image, mask, img_name, alpha=0.5):
