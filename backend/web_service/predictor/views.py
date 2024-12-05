@@ -18,16 +18,13 @@ class TaskStatusView(APIView):
     def get(self, request, task_id):
         # Проверяем, что задача связана с пользователем
         result = AsyncResult(task_id)
-        task_user_id = result.result.get('user_id') if result.ready() else None
-
-        if task_user_id != request.user.id:
-            return Response({"error": "Task not found or access denied"}, status=403)
+        
+        if not result.ready():
+            return Response({"status": result.status, "message": "Task is still running"}, status=200)
 
         return Response({
             "task_id": task_id,
             "status": result.status,
-            "result": result.result if result.ready() else None,
-            "is_successful": result.successful() if result.ready() else None,
         })
 
 class UploadImagesView(APIView):
