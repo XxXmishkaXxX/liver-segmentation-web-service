@@ -1,8 +1,9 @@
 import os
 from celery import shared_task # type: ignore
 from typing import List
-from .models import ModelPredictionBatch, Image, MaskImage
-from .utils import run_prediction_on_image, overlay_mask_on_image
+from .models import ModelPredictionBatch, MaskImage
+from .utils.prediction import run_prediction_on_image
+from .utils.overlay_mask_on_img import overlay_mask_on_image
 
 import logging
 logger = logging.getLogger(__name__)

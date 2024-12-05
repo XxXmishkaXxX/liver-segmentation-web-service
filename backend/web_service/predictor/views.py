@@ -8,7 +8,7 @@ from .serializers import ModelPredictionBatchSerializer
 from django.shortcuts import get_object_or_404
 from .tasks import process_images_in_batch
 from rest_framework import pagination
-from django.core.files.base import ContentFile
+from .utils.update_mask import update_mask
 
 
 
@@ -147,13 +147,7 @@ class UpdateMaskImage(APIView):
             return Response({"error": "No new mask provided"}, status=status.HTTP_400_BAD_REQUEST)
         
 
-        new_mask_content = new_mask.read()
-        new_mask = ContentFile(new_mask_content, name=mask.image_file.name)
-
-        mask.image_file = new_mask  # Заменяем старое изображение на новое
-        
-        # Сохраняем маску в базе данных
-        mask.save()
+        update_mask(mask, new_mask)
 
         # Возвращаем обновленные данные маски
         return Response({"message": "Mask updated successfully"}, status=status.HTTP_200_OK)
