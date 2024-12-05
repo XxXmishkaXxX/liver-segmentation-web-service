@@ -24,7 +24,7 @@ def run_prediction_on_image(image_path: str, image_size=(128, 128)):
     
     # Предсказание маски моделью
     predicted_mask = model.predict(image)[0]
-    
+
 
     return image, predicted_mask
 
