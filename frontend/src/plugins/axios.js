@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { useRouter } from 'vue-router'; 
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/',
+  baseURL: 'http://127.0.0.1:8000/api/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -39,6 +40,8 @@ api.interceptors.response.use(
         return axios(originalRequest);
       } catch (refreshError) {
         console.error('Refresh token expired or invalid', refreshError);
+        const router = useRouter(); // Используем роутер для редиректа
+        router.push('/auth/');
         return Promise.reject(refreshError);
       }
     }
