@@ -169,6 +169,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_URL = '/images/'  # URL, который будет использоваться для доступа к изображениям
+MEDIA_ROOT = os.path.join(BASE_DIR, 'images')  # Путь на сервере, где хранятся изображения
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

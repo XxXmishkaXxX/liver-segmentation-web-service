@@ -20,8 +20,8 @@ class ModelPredictionBatchSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'created_at', 'image_count', 'first_image']
 
     def get_first_image(self, obj):
-        # Предполагается, что у ModelPredictionBatch есть связь с Image через Related Manager, например, `images`
-        first_image = obj.images.first()  # images — это имя обратной связи
+        
+        first_image = obj.images.first()
         if first_image:
             return ImageSerializer(first_image).data
         return None

@@ -17,7 +17,7 @@ class ModelPredictionBatch(models.Model):
 class Image(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='images')
     batch = models.ForeignKey(ModelPredictionBatch, on_delete=models.CASCADE, related_name='images')
-    image_file = models.ImageField(upload_to='images/')  # Путь для сохранения
+    image_file = models.ImageField(upload_to='')  # Путь для сохранения
     created_at = models.DateTimeField(auto_now_add=True)
     processed = models.BooleanField(default=False)  # Обработано ли изображение моделью
 
@@ -33,7 +33,7 @@ class Image(models.Model):
 
 class MaskImage(models.Model):
     original_img = models.ForeignKey(Image, on_delete=models.CASCADE, related_name='original_image')
-    image_file = models.ImageField(upload_to='images/')  # Путь для маски
+    image_file = models.ImageField(upload_to='')  # Путь для маски
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
