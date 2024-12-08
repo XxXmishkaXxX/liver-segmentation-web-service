@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useRouter } from 'vue-router'; 
+import { useRouter } from 'vue-router';
 
 const api = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/',
@@ -31,16 +31,20 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const response = await axios.post('api/users/token/refresh/', {}, { withCredentials: true });
+        // Добавляем задержку перед запросом на обновление токена
+        await new Promise((resolve) => setTimeout(resolve, 10000)); // 10 секунд
+
+        const response = await api.post('users/token/refresh/', {}, { withCredentials: true });
 
         const newAccessToken = response.data.access;
         localStorage.setItem('access_token', newAccessToken);
 
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-        return axios(originalRequest);
+        return api(originalRequest); // Повторяем запрос с новым токеном
       } catch (refreshError) {
         console.error('Refresh token expired or invalid', refreshError);
-        const router = useRouter(); // Используем роутер для редиректа
+
+        const router = useRouter();
         router.push('/auth/');
         return Promise.reject(refreshError);
       }
