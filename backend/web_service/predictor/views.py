@@ -85,6 +85,19 @@ class BatchPredictionView(APIView):
         }, status=status.HTTP_202_ACCEPTED)
     
 
+class GetAllBatchesUser(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request,):
+
+        bacthes = ModelPredictionBatch.objects.filter(user=request.user)
+
+        serializer = ModelPredictionBatchSerializer(bacthes, many=True)
+
+        return Response(serializer.data)
+
+
+
 
 class DeleteBatchView(APIView):
     permission_classes = [IsAuthenticated]
