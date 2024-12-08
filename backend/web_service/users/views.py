@@ -61,7 +61,7 @@ class RegisterView(APIView):
         user = serializer.save()
         
         user.email_confirmation_code.send_email()
-        return Response({"detail": "User registered. Check your email for confirmation code."}, status=status.HTTP_201_CREATED)
+        return Response({"success": "User registered. Check your email for confirmation code."}, status=status.HTTP_201_CREATED)
 
 
 class ConfirmEmailView(APIView):
@@ -72,7 +72,7 @@ class ConfirmEmailView(APIView):
         serializer = ConfirmEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"detail": "Email confirmed. You can now log in."}, status=status.HTTP_200_OK)
+        return Response({"success": "Email confirmed. You can now log in."}, status=status.HTTP_200_OK)
 
 class ResendCodeView(APIView):
     permission_classes = [AllowAny]
