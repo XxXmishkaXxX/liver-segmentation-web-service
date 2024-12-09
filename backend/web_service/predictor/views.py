@@ -40,7 +40,7 @@ class UploadImagesView(APIView):
         batch = ModelPredictionBatch.objects.create(user=request.user, image_count=0)
 
         # Поддерживаемые форматы
-        supported_formats = {'jpg', 'jpeg', 'png', 'bmp', 'dcm'}
+        supported_formats = {'dcm'}
         
         for file in uploaded_files:
             file_extension = file.name.lower().split('.')[-1]
