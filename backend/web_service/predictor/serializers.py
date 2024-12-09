@@ -7,21 +7,24 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'batch', 'image_file', 'created_at', 'processed',]
 
 
-class MaskImageSerializers(serializers.ModelSerializer):
+class MaskImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = MaskImage
         fields = ['id',]
 
 class ModelPredictionBatchSerializer(serializers.ModelSerializer):
-    first_image = serializers.SerializerMethodField()
+    first_mask = serializers.SerializerMethodField()
 
     class Meta:
         model = ModelPredictionBatch
-        fields = ['id', 'user', 'created_at', 'image_count', 'first_image']
+        fields = ['id', 'user', 'created_at', 'image_count', 'first_mask']
 
-    def get_first_image(self, obj):
-        # Предполагается, что у ModelPredictionBatch есть связь с Image через Related Manager, например, `images`
-        first_image = obj.images.first()  # images — это имя обратной связи
+    def get_first_mask(self, obj):
+        # Получаем первое изображение из батча
+        first_image = obj.images.first()  # 'images' — это имя обратной связи для связи с Image
         if first_image:
-            return ImageSerializer(first_image).data
+            # Находим первую маску для этого изображения
+            first_mask = first_image.original_image.first()  # 'original_image' — связь с MaskImage
+            if first_mask:
+                return MaskImageSerializer(first_mask).data
         return None
