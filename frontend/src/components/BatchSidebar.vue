@@ -3,10 +3,9 @@
     <h3>Ваши батчи</h3>
     <ul>
       <li v-for="batch in batches" :key="batch.id" class="batch-item">
-        <div class="batch-info">
-          <img :src="batch.first_image.image_file" alt="Batch Preview" class="batch-image" />
+        <div class="batch-info" @click="selectBatch(batch.id)">
+          <img :src="batch.first_mask.image_file" alt="Batch Preview" class="batch-image" />
           <div>
-            <span @click="selectBatch(batch.id)" class="batch-name">{{ batch.name }}</span>
             <p class="batch-date">Дата создания: {{ formatDate(batch.created_at) }}</p>
             <p class="batch-count">Количество фото: {{ batch.image_count }}</p>
           </div>
@@ -19,7 +18,6 @@
   </div>
 </template>
 
-  
 <script>
 export default {
   data() {
@@ -35,11 +33,9 @@ export default {
         this.loading = true;
         this.error = null;
 
-        // Предполагаем, что API возвращает список батчей со следующими данными:
-        // { id, name, photo, created_at, photo_count }
+        // Получаем данные о батчах с API
         const response = await this.$api.get('batches/');
         this.batches = response.data;
-        console.log(response.data)
       } catch (err) {
         this.error = "Не удалось загрузить батчи.";
       } finally {
@@ -72,7 +68,7 @@ export default {
   },
 };
 </script>
-  
+
 <style scoped>
 .batch-sidebar {
   width: 100%;

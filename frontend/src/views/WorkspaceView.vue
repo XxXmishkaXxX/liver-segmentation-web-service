@@ -1,68 +1,49 @@
 <template>
   <div class="workspace">
     <!-- Сайдбар с батчами -->
-    <BatchSidebar class="sidebar" @select-batch="selectBatch" />
+    <BatchSidebar class="sidebar" ref="sideBar" @select-batch="selectBatch" />
 
     <!-- Основной контент -->
     <div class="main-content">
       <!-- Область загрузки -->
-      <PhotoUploadArea
-        :photos="photos"
-        :selected-photo="selectedPhoto"
-        :show-before="showBefore"
-        @file-upload="handleFileUpload"
-        @toggle-before-after="toggleBeforeAfter"
-      />
+      <BatchDetail ref="batchDetail" @add-batch-in-sidebar="addBatchInSideBar"/>
     </div>
   </div>
 </template>
 
 <script>
 import BatchSidebar from "../components/BatchSidebar.vue"; // Компонент сайдбара
-import PhotoUploadArea from "../components//PhotoUploadArea.vue"; // Компонент загрузки фотографий
+import BatchDetail from "../components//BatchDetail.vue"; // Компонент загрузки фотографий
 
 export default {
   components: {
     BatchSidebar,
-    PhotoUploadArea,
+    BatchDetail,
   },
   data() {
     return {
-      photos: [], // Список загруженных фотографий
-      selectedPhotoIndex: 0, // Индекс выбранной фотографии
-      showBefore: true, // Тумблер "до/после"
-      currentPage: 1, // Текущая страница пагинации
-      photosPerPage: 5, // Количество фотографий на странице
     };
   },
   computed: {
-    selectedPhoto() {
-      return this.photos[this.selectedPhotoIndex] || {};
-    },
   },
   methods: {
-    selectBatch(batchId) {
-      console.log("Выбран батч:", batchId);
-      // Обработайте выбор батча, например, подгрузите фото
+
+    async selectBatch(batch_id){
+      if (this.$refs.batchDetail) {
+      this.$refs.batchDetail.batch_id = batch_id;
+      this.$refs.batchDetail.getBatchResults();
+    } else {
+      console.error('Компонент BatchDetail еще не доступен');
+    }
     },
-    handleFileUpload(files) {
-      const uploadedPhotos = files.map((file, index) => ({
-        id: this.photos.length + index,
-        original: file.original,
-        processed: file.processed,
-        thumbnail: file.thumbnail,
-      }));
-      this.photos.push(...uploadedPhotos);
-    },
-    selectPhoto(index) {
-      this.selectedPhotoIndex = index;
-    },
-    toggleBeforeAfter(value) {
-      this.showBefore = value;
-    },
-    handlePageChange(page) {
-      this.currentPage = page;
-    },
+
+    async addBatchInSideBar() {
+      if (this.$refs.sideBar){
+        this.$refs.sideBar.getBatches()
+      }
+
+    }
+
   },
 };
 </script>
