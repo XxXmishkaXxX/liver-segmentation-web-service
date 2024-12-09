@@ -1,6 +1,9 @@
 <template>
   <div class="workspace">
-    <BatchSidebar class="sidebar" ref="sideBar" @select-batch="selectBatch" />
+    <BatchSidebar class="sidebar" 
+                  ref="sideBar" 
+                  @select-batch="selectBatch"
+                  @clear-preview-area="clearPreviewArea" />
     <BatchDetail ref="batchDetail" @add-batch-in-sidebar="addBatchInSideBar" />
   </div>
 </template>
@@ -28,6 +31,15 @@ export default {
         this.$refs.sideBar.getBatches();
       }
     },
+    async clearPreviewArea(deletedBatchId) {
+      if (this.$refs.batchDetail.batch_id === deletedBatchId) {
+        console.log("Удаляем текущий просматриваемый батч, очищаем зону превью");
+        this.$refs.batchDetail.masks = [];
+        this.$refs.batchDetail.batch_id = null; // Сбрасываем текущий ID батча
+      } else {
+        console.log("Удален другой батч, зона превью не очищается");
+      }
+}
   },
 };
 </script>

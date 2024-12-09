@@ -49,13 +49,16 @@ export default {
         this.loading = true;
         await this.$api.delete(`delete-batch/${batchId}/`);
         this.batches = this.batches.filter((batch) => batch.id !== batchId);
+
+        // Передаем id удаленного батча родителю
+        this.$emit("clear-preview-area", batchId);
       } catch (err) {
         alert("Не удалось удалить батч.");
       } finally {
         this.loading = false;
       }
     },
-    selectBatch(batchId) {
+    async selectBatch(batchId) {
       this.$emit("select-batch", batchId); // Передаем выбранный батч родительскому компоненту
     },
     formatDate(dateString) {
