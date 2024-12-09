@@ -1,59 +1,69 @@
 <template>
-    <div>
+    <div class="main-content">
       <div class="upload-area" @click="triggerFileInput">
-        <input type="file" ref="fileInput" multiple @change="handleFileSelect" hidden />
-        <div v-if="!photos.length" class="placeholder">Нажмите, чтобы загрузить фотографии</div>
+        <input
+          type="file"
+          ref="fileInput"
+          multiple
+          @change="handleFileUpload"
+          hidden
+        />
+        <div v-if="!photos.length" class="placeholder">
+          Нажмите, чтобы загрузить фотографии
+        </div>
         <div v-else class="preview">
-          <img :src="showBefore ? selectedPhoto.original : selectedPhoto.processed" alt="Preview" />
-          <div class="mask" v-if="!showBefore"></div>
+          <img
+            :src="photos[0]?.url"
+            alt="Preview"
+          />
         </div>
       </div>
-      <div class="toggle">
-        <label>
-          <input type="checkbox" v-model="localShowBefore" @change="emitToggle" />
-          Показывать "до"
-        </label>
-      </div>
+      <div v-if="loading" class="loading-spinner">Загрузка...</div>
+      <div v-if="uploadError" class="error-message">{{ uploadError }}</div>
     </div>
   </template>
   
   <script>
   export default {
-    props: {
-      photos: Array,
-      selectedPhoto: Object,
-      showBefore: Boolean,
-    },
     data() {
       return {
-        localShowBefore: this.showBefore,
+        photos: [], // Список загруженных фотографий
+        loading: false, // Состояние загрузки
+        uploadError: null, // Ошибка загрузки
       };
     },
     methods: {
       triggerFileInput() {
         this.$refs.fileInput.click();
       },
-      handleFileSelect(event) {
+      async handleFileUpload(event) {
         const files = Array.from(event.target.files);
-        const processedFiles = files.map((file) => {
-          const reader = new FileReader();
-          return new Promise((resolve) => {
-            reader.onload = (e) => {
-              resolve({
-                original: e.target.result,
-                processed: e.target.result,
-                thumbnail: e.target.result,
-              });
-            };
-            reader.readAsDataURL(file);
+        if (!files.length) return;
+  
+        const formData = new FormData();
+        files.forEach((file) => {
+          formData.append('files', file); // `image` - поле на бэке
+        });
+        console.log(formData.files)
+        try {
+          this.loading = true;
+          this.uploadError = null;
+  
+          // Отправка файлов на сервер
+          const response = await this.$api.post('upload/', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
           });
-        });
-        Promise.all(processedFiles).then((uploadedFiles) => {
-          this.$emit("file-upload", uploadedFiles);
-        });
-      },
-      emitToggle() {
-        this.$emit("toggle-before-after", this.localShowBefore);
+  
+          // Обновляем список фотографий после успешной загрузки
+          this.photos.push(...response.data);
+        } catch (error) {
+          console.error('Ошибка загрузки изображений:', error);
+          this.uploadError = 'Не удалось загрузить изображения. Попробуйте снова.';
+        } finally {
+          this.loading = false;
+        }
       },
     },
   };
@@ -70,25 +80,26 @@
     cursor: pointer;
     margin-bottom: 20px;
   }
+  
   .upload-area .placeholder {
     text-align: center;
     color: #aaa;
   }
+  
   .upload-area .preview img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .upload-area .preview .mask {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
+  
+  .loading-spinner {
+    color: #007bff;
+    font-size: 14px;
   }
-  .toggle {
-    margin-bottom: 20px;
+  
+  .error-message {
+    color: red;
+    font-size: 14px;
   }
   </style>
   

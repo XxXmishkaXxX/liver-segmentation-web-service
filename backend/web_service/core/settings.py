@@ -178,6 +178,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'images')  # Путь на сервере, �
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+DATA_UPLOAD_MAX_NUMBER_FILES = 500
 
 LOGGING = {
     'version': 1,
