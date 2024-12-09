@@ -174,6 +174,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+DATA_UPLOAD_MAX_NUMBER_FILES = 500
 
 LOGGING = {
     'version': 1,
