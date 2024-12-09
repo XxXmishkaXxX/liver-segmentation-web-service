@@ -1,88 +1,74 @@
 <template>
   <div class="workspace">
-    <!-- Сайдбар с батчами -->
-    <BatchSidebar class="sidebar" @select-batch="selectBatch" />
-
-    <!-- Основной контент -->
-    <div class="main-content">
-      <!-- Область загрузки -->
-      <PhotoUploadArea
-        :photos="photos"
-        :selected-photo="selectedPhoto"
-        :show-before="showBefore"
-        @file-upload="handleFileUpload"
-        @toggle-before-after="toggleBeforeAfter"
-      />
-    </div>
+    <BatchSidebar class="sidebar" 
+                  ref="sideBar" 
+                  @select-batch="selectBatch"
+                  @clear-preview-area="clearPreviewArea" />
+    <BatchDetail ref="batchDetail" @add-batch-in-sidebar="addBatchInSideBar" />
   </div>
 </template>
 
 <script>
-import BatchSidebar from "../components/BatchSidebar.vue"; // Компонент сайдбара
-import PhotoUploadArea from "../components//PhotoUploadArea.vue"; // Компонент загрузки фотографий
+import BatchSidebar from "../components/BatchSidebar.vue";
+import BatchDetail from "../components/BatchDetail.vue";
 
 export default {
   components: {
     BatchSidebar,
-    PhotoUploadArea,
-  },
-  data() {
-    return {
-      photos: [], // Список загруженных фотографий
-      selectedPhotoIndex: 0, // Индекс выбранной фотографии
-      showBefore: true, // Тумблер "до/после"
-      currentPage: 1, // Текущая страница пагинации
-      photosPerPage: 5, // Количество фотографий на странице
-    };
-  },
-  computed: {
-    selectedPhoto() {
-      return this.photos[this.selectedPhotoIndex] || {};
-    },
+    BatchDetail,
   },
   methods: {
-    selectBatch(batchId) {
-      console.log("Выбран батч:", batchId);
-      // Обработайте выбор батча, например, подгрузите фото
+    async selectBatch(batch_id) {
+      if (this.$refs.batchDetail) {
+        this.$refs.batchDetail.batch_id = batch_id;
+        this.$refs.batchDetail.getBatchResults();
+      } else {
+        console.error('Компонент BatchDetail еще не доступен');
+      }
     },
-    handleFileUpload(files) {
-      const uploadedPhotos = files.map((file, index) => ({
-        id: this.photos.length + index,
-        original: file.original,
-        processed: file.processed,
-        thumbnail: file.thumbnail,
-      }));
-      this.photos.push(...uploadedPhotos);
+    async addBatchInSideBar() {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.getBatches();
+      }
     },
-    selectPhoto(index) {
-      this.selectedPhotoIndex = index;
-    },
-    toggleBeforeAfter(value) {
-      this.showBefore = value;
-    },
-    handlePageChange(page) {
-      this.currentPage = page;
-    },
+    async clearPreviewArea(deletedBatchId) {
+      if (this.$refs.batchDetail.batch_id === deletedBatchId) {
+        console.log("Удаляем текущий просматриваемый батч, очищаем зону превью");
+        this.$refs.batchDetail.masks = [];
+        this.$refs.batchDetail.batch_id = null; // Сбрасываем текущий ID батча
+      } else {
+        console.log("Удален другой батч, зона превью не очищается");
+      }
+}
   },
 };
 </script>
 
 <style scoped>
 .workspace {
-  display: flex;
+  position: relative;
   height: 100vh;
+  overflow: hidden;
 }
+
 .sidebar {
-  width: 20%;
+  position: absolute; /* Абсолютное позиционирование */
+  top: 0;
+  left: 0;
+  width: 300px; /* Ширина сайдбара */
+  height: 100%; /* Занимает всю высоту */
   background: #f4f4f4;
-  padding: 10px;
+  z-index: 10; /* Поверх основного контента */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
 }
 .main-content {
-  width: 80%;
-  padding: 20px;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  height: 100vh;
+  padding: 20px;
+  margin-left: 300px; /* Отступ слева, равный ширине сайдбара */
+  background: #fff;
 }
 </style>
