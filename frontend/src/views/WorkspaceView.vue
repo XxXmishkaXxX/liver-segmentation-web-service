@@ -13,15 +13,6 @@
         @file-upload="handleFileUpload"
         @toggle-before-after="toggleBeforeAfter"
       />
-
-      <!-- Галерея фотографий -->
-      <PhotoGallery
-        :photos="paginatedPhotos"
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        @select-photo="selectPhoto"
-        @change-page="handlePageChange"
-      />
     </div>
   </div>
 </template>
@@ -29,13 +20,11 @@
 <script>
 import BatchSidebar from "../components/BatchSidebar.vue"; // Компонент сайдбара
 import PhotoUploadArea from "../components//PhotoUploadArea.vue"; // Компонент загрузки фотографий
-import PhotoGallery from "../components/PhotoGallery.vue"; // Компонент галереи
 
 export default {
   components: {
     BatchSidebar,
     PhotoUploadArea,
-    PhotoGallery,
   },
   data() {
     return {
@@ -49,13 +38,6 @@ export default {
   computed: {
     selectedPhoto() {
       return this.photos[this.selectedPhotoIndex] || {};
-    },
-    paginatedPhotos() {
-      const start = (this.currentPage - 1) * this.photosPerPage;
-      return this.photos.slice(start, start + this.photosPerPage);
-    },
-    totalPages() {
-      return Math.ceil(this.photos.length / this.photosPerPage);
     },
   },
   methods: {
