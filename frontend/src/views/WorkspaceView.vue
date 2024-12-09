@@ -1,69 +1,62 @@
 <template>
   <div class="workspace">
-    <!-- Сайдбар с батчами -->
     <BatchSidebar class="sidebar" ref="sideBar" @select-batch="selectBatch" />
-
-    <!-- Основной контент -->
-    <div class="main-content">
-      <!-- Область загрузки -->
-      <BatchDetail ref="batchDetail" @add-batch-in-sidebar="addBatchInSideBar"/>
-    </div>
+    <BatchDetail ref="batchDetail" @add-batch-in-sidebar="addBatchInSideBar" />
   </div>
 </template>
 
 <script>
-import BatchSidebar from "../components/BatchSidebar.vue"; // Компонент сайдбара
-import BatchDetail from "../components//BatchDetail.vue"; // Компонент загрузки фотографий
+import BatchSidebar from "../components/BatchSidebar.vue";
+import BatchDetail from "../components/BatchDetail.vue";
 
 export default {
   components: {
     BatchSidebar,
     BatchDetail,
   },
-  data() {
-    return {
-    };
-  },
-  computed: {
-  },
   methods: {
-
-    async selectBatch(batch_id){
+    async selectBatch(batch_id) {
       if (this.$refs.batchDetail) {
-      this.$refs.batchDetail.batch_id = batch_id;
-      this.$refs.batchDetail.getBatchResults();
-    } else {
-      console.error('Компонент BatchDetail еще не доступен');
-    }
-    },
-
-    async addBatchInSideBar() {
-      if (this.$refs.sideBar){
-        this.$refs.sideBar.getBatches()
+        this.$refs.batchDetail.batch_id = batch_id;
+        this.$refs.batchDetail.getBatchResults();
+      } else {
+        console.error('Компонент BatchDetail еще не доступен');
       }
-
-    }
-
+    },
+    async addBatchInSideBar() {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.getBatches();
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
 .workspace {
-  display: flex;
+  position: relative;
   height: 100vh;
+  overflow: hidden;
 }
+
 .sidebar {
-  width: 20%;
+  position: absolute; /* Абсолютное позиционирование */
+  top: 0;
+  left: 0;
+  width: 300px; /* Ширина сайдбара */
+  height: 100%; /* Занимает всю высоту */
   background: #f4f4f4;
-  padding: 10px;
+  z-index: 10; /* Поверх основного контента */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
 }
 .main-content {
-  width: 80%;
-  padding: 20px;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  height: 100vh;
+  padding: 20px;
+  margin-left: 300px; /* Отступ слева, равный ширине сайдбара */
+  background: #fff;
 }
 </style>
