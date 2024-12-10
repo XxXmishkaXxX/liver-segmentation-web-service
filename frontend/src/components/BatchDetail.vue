@@ -1,57 +1,45 @@
 <template>
   <div class="main-content">
-    <!-- Область загрузки -->
-    <div
+    <UploadArea
       v-if="!masks.length && !loadingUpload && !loadingPredict"
-      class="upload-area"
-      @click="triggerFileInput"
-    >
-      <input
-        type="file"
-        ref="fileInput"
-        multiple
-        @change="handleFileUpload"
-        hidden
+      @upload="handleFileUpload"
+      :previewImage="previewImage"
+    />
+    <ImagePreview
+      v-else-if="masks.length && !loadingUpload && !loadingPredict && !isEditing"
+      :masks="masks"
+      :selectedMaskIndex="selectedMaskIndex"
+      :currentMask="currentMask"
+      :hasMoreMasks="hasMoreMasks"
+      @prevMask="prevMask"
+      @nextMask="nextMask"
+      @editMask="editMask"
+    />
+    <MaskEditor
+      v-if="isEditing"
+      :backgroundImageUrl="currentMask.maskUrl"
+      :initialMaskUrl="null" 
+      @save="saveEditedMask"
+      @close="isEditing = false"
       />
-      <div class="placeholder">
-        <img :src="previewImage" alt="Preview" />
-        Нажмите, чтобы загрузить фотографии
-      </div>
-    </div>
-
-    <!-- Превью изображений (если маски загружены) -->
-    <div v-else-if="masks.length && !loadingUpload && !loadingPredict" class="preview">
-      <div class="carousel">
-        <button @click.stop="prevMask" :disabled="selectedMaskIndex === 0">⬅️</button>
-        <div class="mask-preview">
-          <img :src="currentMask.maskUrl" alt="Mask Preview" />
-          <p>ID маски: {{ currentMask.id }}</p>
-          <button @click.stop="editMask(currentMask.id)">Редактировать</button>
-        </div>
-        <button
-          @click.stop="nextMask"
-          :disabled="!hasMoreMasks && selectedMaskIndex === masks.length - 1"
-        >
-          ➡️
-        </button>
-      </div>
-    </div>
-
-    <!-- Колесо загрузки (Bootstrap Spinner) -->
-    <div v-if="loadingUpload || loadingPredict" class="spinner-container">
-      <div class="spinner-border text-primary" role="status" style="width: 10rem; height: 10rem;">
-        <span class="visually-hidden">Загрузка...</span>
-      </div>
-    </div>
-
-    <!-- Статус и ошибки -->
-    <div v-if="statusMessage && !loadingUpload && !loadingPredict" class="status-message">{{ statusMessage }}</div>
-    <div v-if="uploadError" class="error-message">{{ uploadError }}</div>
+    <SpinnerLoader v-if="loadingUpload || loadingPredict" />
+    <StatusMessages
+      v-if="statusMessage || uploadError"
+      :statusMessage="statusMessage"
+      :uploadError="uploadError"
+    />
   </div>
 </template>
 
 <script>
+import UploadArea from './mainContentComponents/UploadArea.vue';
+import ImagePreview from './mainContentComponents/ImagePreview.vue';
+import SpinnerLoader from './mainContentComponents/SpinnerLoader.vue';
+import StatusMessages from './mainContentComponents/StatusMessages.vue';
+import MaskEditor from './mainContentComponents/MaskEditor.vue';
+
 export default {
+  components: { UploadArea, ImagePreview, MaskEditor, SpinnerLoader, StatusMessages },
   data() {
     return {
       masks: [], // Список масок (фотографий)
@@ -65,6 +53,7 @@ export default {
       previewImage: require('../assets/images/dcm-file-document-icon-vector-24678549.jpg'),
       nextUrl: null, // URL для загрузки следующей порции масок
       hasMoreMasks: true, // Флаг, есть ли еще маски
+      isEditing: false,
     };
   },
   computed: {
@@ -198,10 +187,73 @@ export default {
         this.loadingUpload = false;
       }
     },
-
     editMask(maskId) {
-      console.log('Редактирование маски с ID:', maskId);
+    console.log('Редактирование маски с ID:', maskId);
+    const mask = this.masks.find((m) => m.id === maskId);
+    if (mask) {
+      this.isEditing = true; // Включаем редактор
+    } else {
+      console.error('Маска не найдена!');
+    }
+  },
+    openMaskEditor(maskId) {
+      this.isEditing = true;
     },
+    async saveEditedMask(newMaskData) {
+  try {
+    // Проверим, если строка Base64 начинается с префикса 'data:image'
+    if (newMaskData.startsWith('data:image')) {
+      // Отрезаем префикс 'data:image/*;base64,' для получения чистой строки Base64
+      const base64String = newMaskData.split(';base64,')[1];
+
+      // Декодируем Base64 в бинарные данные
+      const byteCharacters = atob(base64String);
+      const byteArrays = [];
+
+      for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+        const slice = byteCharacters.slice(offset, offset + 1024);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+        byteArrays.push(new Uint8Array(byteNumbers));
+      }
+
+      // Создаем объект Blob из бинарных данных
+      const blob = new Blob(byteArrays, { type: 'image/png' }); // Убедитесь, что тип соответствует вашему изображению
+
+      // Создаем файл из Blob
+      const file = new File([blob], 'new_mask.png', { type: 'image/png' });
+
+      // Создаем FormData и добавляем файл
+      const formData = new FormData();
+      formData.append('new_mask', file);
+
+      // Отправляем PUT запрос с FormData
+      const response = await this.$api.put(
+        `/update-mask/${this.currentMask.id}/`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'}
+        }
+      );
+
+      console.log('Маска сохранена:', response.data);
+      this.isEditing = false;
+
+      // Обновить маску в списке
+      const updatedMask = this.masks.find((mask) => mask.id === this.currentMask.id);
+      if (updatedMask) {
+        updatedMask.maskUrl = response.data.maskUrl; // Пример обновления URL маски
+      }
+    } else {
+      console.error('Invalid image format');
+    }
+  } catch (error) {
+    console.error('Ошибка сохранения маски:', error);
+  }
+},
   },
 };
 </script>
