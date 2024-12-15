@@ -10,7 +10,7 @@ class ImageSerializer(serializers.ModelSerializer):
 class MaskImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = MaskImage
-        fields = ['id',]
+        fields = ['id', 'image_file']
 
 class ModelPredictionBatchSerializer(serializers.ModelSerializer):
     first_mask = serializers.SerializerMethodField()
