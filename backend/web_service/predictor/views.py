@@ -143,7 +143,7 @@ class GetBatchImagesView(APIView):
 
             if mask:
                 image_pairs.append({
-                    'original': (original.image_file.url, original.id),
+                    'original': (original.image_file_png.url, original.id),
                     'mask': (mask.image_file.url, mask.id)
                 })
         

@@ -10,21 +10,19 @@ class ImageSerializer(serializers.ModelSerializer):
 class MaskImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = MaskImage
-        fields = ['id',]
+        fields = ['id', 'image_file']
 
 class ModelPredictionBatchSerializer(serializers.ModelSerializer):
-    first_mask = serializers.SerializerMethodField()
+    first_img = serializers.SerializerMethodField()
 
     class Meta:
         model = ModelPredictionBatch
-        fields = ['id', 'user', 'created_at', 'image_count', 'first_mask']
+        fields = ['id', 'user', 'created_at', 'image_count', 'first_img']
 
-    def get_first_mask(self, obj):
-        # Получаем первое изображение из батча
-        first_image = obj.images.first()  # 'images' — это имя обратной связи для связи с Image
-        if first_image:
-            # Находим первую маску для этого изображения
-            first_mask = first_image.original_image.first()  # 'original_image' — связь с MaskImage
-            if first_mask:
-                return MaskImageSerializer(first_mask).data
+    def get_first_img(self, obj):
+    # Получаем первое изображение из батча
+        first_image = obj.images.first()
+        if first_image and first_image.image_file_png:
+            # Проверяем, есть ли файл в поле image_file_png
+            return {'image_url': first_image.image_file_png.url}
         return None
