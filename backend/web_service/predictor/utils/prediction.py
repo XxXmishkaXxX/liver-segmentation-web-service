@@ -11,8 +11,6 @@ model_path = os.path.join('predictor', 'model', 'best_model.keras')
  
 model = load_model(model_path, custom_objects={'dice_coef': dice_coef, 'dice_coef_loss': dice_coef_loss})
 
-print(model_path)
-
 def run_prediction_on_image(image_path: str, image_size=(128, 128)):
     image = dcmread(image_path)
     image = image.pixel_array
@@ -26,5 +24,5 @@ def run_prediction_on_image(image_path: str, image_size=(128, 128)):
     predicted_mask = model.predict(image)[0]
 
 
-    return image, predicted_mask
+    return predicted_mask
 
