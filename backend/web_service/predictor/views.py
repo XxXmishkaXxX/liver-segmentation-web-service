@@ -175,10 +175,11 @@ class UpdateMaskImage(APIView):
             return Response({"error": "No new mask provided"}, status=status.HTTP_400_BAD_REQUEST)
         
 
-        update_mask(mask, new_mask)
+        url = update_mask(mask, new_mask)
 
         # Возвращаем обновленные данные маски
-        return Response({"message": "Mask updated successfully"}, status=status.HTTP_200_OK)
+        return Response({"message": "Mask updated successfully",
+                         "newMaskUrl":url}, status=status.HTTP_200_OK)
         
 
 
