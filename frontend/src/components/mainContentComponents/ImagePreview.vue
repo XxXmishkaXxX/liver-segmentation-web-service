@@ -30,6 +30,7 @@
         ➡️
       </button>
     </div>
+    <button @click="backToUpload">Назад</button>
 
     <!-- Сообщение при отсутствии масок -->
     <p v-if="!masks.length" class="no-masks-message">
@@ -84,6 +85,9 @@ export default {
     toggleMask() {
       this.showMask = !this.showMask; // Переключаем состояние маски
     },
+    backToUpload(){
+      this.$emit('clearArrMasks');
+    }
   },
 };
 </script>

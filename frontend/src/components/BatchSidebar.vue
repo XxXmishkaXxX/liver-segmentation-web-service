@@ -25,6 +25,8 @@ export default {
       batches: [], // Список батчей
       loading: false,
       error: null,
+      isModalOpen: false, // Флаг для модального окна
+      previewImage: require('../assets/images/dcm-file-document-icon-vector-24678549.jpg'), // Превью изображения
     };
   },
   methods: {
@@ -36,11 +38,47 @@ export default {
         // Получаем данные о батчах с API
         const response = await this.$api.get('batches/');
         this.batches = response.data;
-        console.log(this.batches)
       } catch (err) {
         this.error = "Не удалось загрузить батчи.";
       } finally {
         this.loading = false;
+      }
+    },
+    openUploadModal() {
+      this.isModalOpen = true; // Открываем модальное окно
+    },
+    closeModal() {
+      this.isModalOpen = false; // Закрываем модальное окно
+    },
+    async handleFileUpload(event) {
+      const files = Array.from(event.target.files);
+      if (!files.length) return;
+
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append('files', file);
+      });
+
+      try {
+        this.loading = true;
+        this.error = null;
+
+        const response = await this.$api.post('upload/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        this.batch_id = response.data.id;
+        if (this.batch_id) {
+          await this.predictBatch(); // Запуск предсказания для нового батча
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки изображений:', error);
+        this.error = 'Не удалось загрузить изображения. Попробуйте снова.';
+      } finally {
+        this.loading = false;
+        this.closeModal(); // Закрываем модальное окно после загрузки
       }
     },
     async deleteBatch(batchId) {
@@ -50,8 +88,6 @@ export default {
         this.loading = true;
         await this.$api.delete(`delete-batch/${batchId}/`);
         this.batches = this.batches.filter((batch) => batch.id !== batchId);
-
-        // Передаем id удаленного батча родителю
         this.$emit("clear-preview-area", batchId);
       } catch (err) {
         alert("Не удалось удалить батч.");
@@ -60,7 +96,7 @@ export default {
       }
     },
     async selectBatch(batchId) {
-      this.$emit("select-batch", batchId); // Передаем выбранный батч родительскому компоненту
+      this.$emit("select-batch", batchId);
     },
     formatDate(dateString) {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -71,6 +107,7 @@ export default {
     this.getBatches();
   },
 };
+
 </script>
 
 <style scoped>

@@ -16,4 +16,4 @@ def update_mask(mask, new_mask):
     # Сохраняем маску в базе данных
     mask.save()
 
-    return
+    return mask.image_file.url
