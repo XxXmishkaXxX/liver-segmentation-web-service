@@ -1,5 +1,6 @@
 from django.core.files.base import ContentFile
 import os
+import time
 
 def update_mask(mask, new_mask):
 
@@ -16,4 +17,4 @@ def update_mask(mask, new_mask):
     # Сохраняем маску в базе данных
     mask.save()
 
-    return mask.image_file.url
+    return mask.image_file.url + "?timestamp=" + str(time.time())
