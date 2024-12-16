@@ -4,7 +4,7 @@
     <ul>
       <li v-for="batch in batches" :key="batch.id" class="batch-item">
         <div class="batch-info" @click="selectBatch(batch.id)">
-          <img :src="batch.first_mask.image_file" alt="Batch Preview" class="batch-image" />
+          <img :src="batch.first_img.image_url" alt="Batch Preview" class="batch-image" />
           <div>
             <p class="batch-date">Дата создания: {{ formatDate(batch.created_at) }}</p>
             <p class="batch-count">Количество фото: {{ batch.image_count }}</p>
@@ -36,6 +36,7 @@ export default {
         // Получаем данные о батчах с API
         const response = await this.$api.get('batches/');
         this.batches = response.data;
+        console.log(this.batches)
       } catch (err) {
         this.error = "Не удалось загрузить батчи.";
       } finally {

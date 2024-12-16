@@ -17,7 +17,8 @@
     />
     <MaskEditor
       v-if="isEditing"
-      :backgroundImageUrl="currentMask.maskUrl"
+      :backgroundImageUrl="currentMask.originalUrl"
+      :maskUrl="currentMask.maskUrl"
       :initialMaskUrl="null" 
       @save="saveEditedMask"
       @close="isEditing = false"
@@ -58,7 +59,7 @@ export default {
   },
   computed: {
     currentMask() {
-      return this.masks[this.selectedMaskIndex] || { id: null, maskUrl: '' };
+      return this.masks[this.selectedMaskIndex] || { id: null, maskUrl: '', originalUrl: '' };
     },
   },
   methods: {
@@ -139,9 +140,10 @@ export default {
       try {
         const response = await this.$api.get(`batch/${this.batch_id}/images/`);
         this.masks = response.data.results.map((item) => ({
-          id: item.mask[1],
-          maskUrl: item.mask[0],
-        }));
+            id: item.mask[1],
+            maskUrl: item.mask[0],
+            originalUrl: item.original[0], // URL оригинального изображения
+          }));
         this.nextUrl = response.data.next;
         this.hasMoreMasks = !!this.nextUrl;
         this.selectedMaskIndex = 0; // Сброс индекса на 0 для отображения первой маски
@@ -172,6 +174,7 @@ export default {
         const newMasks = response.data.results.map((item) => ({
           id: item.mask[1],
           maskUrl: item.mask[0],
+          originalUrl: item.original[0],
         }));
 
         this.masks.push(...newMasks); // Добавляем новые маски в список
