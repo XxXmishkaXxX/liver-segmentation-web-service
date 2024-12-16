@@ -1,9 +1,9 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import RegisterSerializer, ConfirmEmailSerializer, ResendCodeSerializer
+from .serializers import RegisterSerializer, ConfirmEmailSerializer, ResendCodeSerializer, UserSerializer
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -89,3 +89,10 @@ class ResendCodeView(APIView):
         return Response({"success": "Код подтверждения отправлен на указанный email."}, status=status.HTTP_200_OK)
 
 
+class UserDataView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = UserSerializer(request.user)
+        print(user.data)
+        return Response(user.data)

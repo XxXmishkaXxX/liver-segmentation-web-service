@@ -12,6 +12,8 @@ from .utils.update_mask import update_mask
 from celery.result import AsyncResult
 
 
+
+
 class TaskStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -179,7 +181,7 @@ class UpdateMaskImage(APIView):
 
         # Возвращаем обновленные данные маски
         return Response({"message": "Mask updated successfully",
-                         "newMaskUrl":url}, status=status.HTTP_200_OK)
+                         "newMaskUrl": url}, status=status.HTTP_200_OK)
         
 
 

@@ -90,3 +90,9 @@ class ResendCodeSerializer(serializers.Serializer):
         confirmation.send_email()
         return user
     
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
