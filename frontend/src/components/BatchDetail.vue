@@ -17,7 +17,8 @@
     />
     <MaskEditor
       v-if="isEditing"
-      :backgroundImageUrl="currentMask.maskUrl"
+      :backgroundImageUrl="currentMask.originalUrl"
+      :maskUrl="currentMask.maskUrl"
       :initialMaskUrl="null" 
       @save="saveEditedMask"
       @close="isEditing = false"

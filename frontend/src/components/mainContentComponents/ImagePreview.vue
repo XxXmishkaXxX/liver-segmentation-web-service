@@ -132,10 +132,6 @@ export default {
   object-fit: contain;
 }
 
-.mask-image {
-  opacity: 0.7; /* Прозрачность маски */
-}
-
 .toggle-mask-button {
   margin-top: 10px;
   padding: 5px 10px;
