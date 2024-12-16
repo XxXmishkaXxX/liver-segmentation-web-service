@@ -14,6 +14,7 @@
       @prevMask="prevMask"
       @nextMask="nextMask"
       @editMask="editMask"
+      @clearArrMasks="clearArr"
     />
     <MaskEditor
       v-if="isEditing"
@@ -63,6 +64,9 @@ export default {
     },
   },
   methods: {
+    clearArr() {
+      this.masks = [];
+    },
     triggerFileInput() {
       this.$refs.fileInput.click(); // Инициализация загрузки файлов
     },
@@ -191,15 +195,15 @@ export default {
       }
     },
     editMask(maskId) {
-    console.log('Редактирование маски с ID:', maskId);
-    const mask = this.masks.find((m) => m.id === maskId);
-    if (mask) {
-      this.isEditing = true; // Включаем редактор
-    } else {
-      console.error('Маска не найдена!');
-    }
-  },
-    openMaskEditor(maskId) {
+      console.log('Редактирование маски с ID:', maskId);
+      const mask = this.masks.find((m) => m.id === maskId);
+      if (mask) {
+        this.isEditing = true; // Включаем редактор
+      } else {
+        console.error('Маска не найдена!');
+      }
+    },
+    openMaskEditor() {
       this.isEditing = true;
     },
     async saveEditedMask(newMaskData) {
