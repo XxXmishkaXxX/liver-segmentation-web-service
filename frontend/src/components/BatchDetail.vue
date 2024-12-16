@@ -250,13 +250,8 @@ export default {
       this.isEditing = false;
 
       // Обновить маску в списке
-      const updatedMask = this.masks.find((mask) => mask.id === this.currentMask.id);
-      if (updatedMask) {
-        updatedMask.maskUrl = response.data.maskUrl; // Пример обновления URL маски
-      }
-    } else {
-      console.error('Invalid image format');
-    }
+      this.masks.find((mask) => mask.id === this.currentMask.id).maskUrl = response.data.newMaskUrl;
+    } 
   } catch (error) {
     console.error('Ошибка сохранения маски:', error);
   }
