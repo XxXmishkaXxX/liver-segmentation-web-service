@@ -3,7 +3,7 @@ from celery import shared_task # type: ignore
 from typing import List
 from .models import ModelPredictionBatch, MaskImage
 from .utils.prediction import run_prediction_on_image
-from .utils.change_mask_color import make_yellow_mask
+from .utils.change_mask_color import make_yellow_mask_with_transparency
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ def process_images_in_batch(batch_id: int, user_email: str):
             
             mask = run_prediction_on_image(img.image_file.path)  # Функция предсказания
 
-            image_with_mask = make_yellow_mask(mask, img_name)
+            image_with_mask = make_yellow_mask_with_transparency(mask, img_name)
 
             mask_image = MaskImage.objects.create(
                 original_img=img,
