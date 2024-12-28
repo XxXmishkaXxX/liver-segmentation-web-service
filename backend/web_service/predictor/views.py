@@ -9,7 +9,13 @@ from django.shortcuts import get_object_or_404
 from .tasks import process_images_in_batch
 from rest_framework import pagination
 from .utils.update_mask import update_mask
+from .utils.generate_overlay_image import generate_overlay_image
 from celery.result import AsyncResult
+import zipfile
+import io
+from django.http import HttpResponse
+
+
 
 
 class TaskStatusView(APIView):
@@ -179,7 +185,39 @@ class UpdateMaskImage(APIView):
 
         # Возвращаем обновленные данные маски
         return Response({"message": "Mask updated successfully",
-                         "newMaskUrl":url}, status=status.HTTP_200_OK)
+                         "newMaskUrl": url}, status=status.HTTP_200_OK)
         
 
 
+class DownloadMasksAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, batch_id, *args, **kwargs):
+        include_overlay = request.query_params.get('include_overlay', 'false').lower() == 'true'
+        
+        batch = get_object_or_404(ModelPredictionBatch, id=batch_id, user=request.user)
+        images = batch.images.all()
+
+        if images:
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+                for img in images:
+                    mask = MaskImage.objects.get(original_img=img)
+                    name = mask.original_img.image_file.name.split('/')[-1].split('.')[0]
+                    if include_overlay:
+                        overlay_image = generate_overlay_image(img.image_file_png.path, mask.image_file.path)
+                        overlay_buffer = io.BytesIO()
+                        overlay_image.save(overlay_buffer, format="PNG")
+                        zip_file.writestr(f"overlay_{name}.png", overlay_buffer.getvalue())
+                    else:
+                        zip_file.write(mask.image_file.path, f"mask_{name}.png")
+            zip_buffer.seek(0)
+
+            response = HttpResponse(zip_buffer, content_type='application/zip')
+            response['Content-Disposition'] = f'attachment; filename="masks_{batch_id}.zip"'
+            return response
+
+        return Response({"detail": "No images found in the batch."}, status=404)
+
+        
+        
