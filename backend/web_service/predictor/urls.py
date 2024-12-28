@@ -5,7 +5,8 @@ from .views import (TaskStatusView,
                     DeleteBatchView, 
                     GetBatchImagesView, 
                     UpdateMaskImage,
-                    GetAllBatchesUser)
+                    GetAllBatchesUser,
+                    DownloadMasksAPIView,)
 
 urlpatterns = [
     path('task-status/<str:task_id>/', TaskStatusView.as_view(), name='task_status'),
@@ -14,5 +15,6 @@ urlpatterns = [
     path('delete-batch/<int:batch_id>/', DeleteBatchView.as_view(), name='delete_batch'),
     path('batch/<int:batch_id>/images/', GetBatchImagesView.as_view(), name='get_batch_images'),
     path('update-mask/<int:mask_id>/', UpdateMaskImage.as_view(), name='update_mask'),
-    path('batches/', GetAllBatchesUser.as_view(), name='all-user-bacthes')
+    path('batches/', GetAllBatchesUser.as_view(), name='all-user-bacthes'),
+    path('batch/<int:batch_id>/download/', DownloadMasksAPIView.as_view(), name='download-batch')
 ]
