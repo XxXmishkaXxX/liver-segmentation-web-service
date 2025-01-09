@@ -1,0 +1,83 @@
+@font-face {
+    font-family: 'Geologica';
+    src: url('../styles/fonts/Geologica-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Geologica-SemiBold';
+
+    src: url('../styles/fonts/Geologica-SemiBold.ttf') format('truetype');
+
+    font-weight: 600;
+    font-style: normal;
+}
+body {
+    margin: 0;
+    padding: 0;
+    background-image: url('../assets/img/background.svg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+nav a {
+    margin-left: 84px;
+    text-decoration: none;
+    font-size: 32px;
+    color: #92B2BE;
+    
+}
+
+html {
+    scroll-behavior: smooth;
+  }
+
+
+.btn-outline-light.hover-outline:hover {
+    color: white;
+    border-color: white;
+    background-color: transparent;
+    font-weight: bold;
+    border-width: 2px;
+    }
+
+
+    .text-black-src {
+        color: #000000;
+        transition: color 0.5s ease;
+    }
+    .text-black-src:hover {
+        color: #ffffff;
+        transition: color 0.3s ease;
+    }
+/* адаптив фоточки чела который уже заебла */
+.toggle-image {
+    max-width: 100%;
+    height: auto;
+    }
+
+    @media (max-width: 1400px) {
+    .toggle-image {
+        display: none;
+    }
+    }
+
+    @media (max-width: 600px) {
+    .toggle-image {
+        max-width: 50%;
+        height: auto;
+        display: block !important;
+        margin-left: -250px !important;
+    }
+    }
+/* адаптив под тел */
+@media (max-width: 932px) and (min-width: 430px) {
+    /* подумать как сделать */
+}
