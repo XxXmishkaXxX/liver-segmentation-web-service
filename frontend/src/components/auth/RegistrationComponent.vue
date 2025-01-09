@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-5">
+  <div class="container mt-5 text-white">
     <h2>Регистрация</h2>
     
     <!-- Форма регистрации -->
@@ -38,7 +38,7 @@
 
 <script>
 import VerificationCodeComponent from './VerificationCodeComponent.vue';  // Импортируем компонент верификации
-import { toastMixin } from '../mixins/notifications';
+import { toastMixin } from '../../mixins/notifications';
 
 export default {
   components: {

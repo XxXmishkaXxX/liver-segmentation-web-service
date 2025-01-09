@@ -12,9 +12,9 @@
           повысить качество диагностики и лечения.
         </div>
         <div class="mt-5">
-          <button class="btn btn-outline-light hover-outline" style="width: 250px; height: 60px; border-radius: 30px; color: white; border-color: white; transition: all 0.1s ease;">
+          <router-link to="/auth/register/" class="btn btn-outline-light hover-outline" style="width: 250px; height: 60px; border-radius: 30px; color: white; border-color: white; transition: all 0.1s ease;">
             Начать
-          </button>
+          </router-link>
         </div>
       </div>
       <div class="col-md-3" style="margin-left: 39.9vh;">
@@ -126,7 +126,11 @@
   </div>
 </template>
 
-<script setup>
+<script>
+
+export default{
+}
+
 </script>
 
 <style scoped>

@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { toastMixin } from '../mixins/notifications';
+import { toastMixin } from '../../mixins/notifications';
 
 export default {
   props: ['email', 'password'],  // Принимаем почту и пароль через props

@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-5">
+  <div class="container mt-5 text-white">
     <div class="row justify-content-center">
       <div class="col-md-6">
         <h2 class="text-center mb-4">Войти</h2>
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { toastMixin } from '../mixins/notifications';
+import { toastMixin } from '../../mixins/notifications';
 
 export default {
   data() {
