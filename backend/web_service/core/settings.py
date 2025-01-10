@@ -13,12 +13,13 @@ SECRET_KEY = os.getenv("SECRET_KEY_DJANGO")
 DEBUG = True
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8080',  # URL вашего фронтенда (например, для локальной разработки)
+    'http://localhost:8081',  # URL вашего фронтенда (например, для локальной разработки)
 ]
 
 CORS_ALLOW_CREDENTIALS = True  # Разрешить отправку cookies (для refresh токенов в куках)
 
 CORS_ORIGIN_ALLOW_ALL = False
+
 
 
 # Application definition
@@ -77,16 +78,9 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=365),
-    'ROTATE_REFRESH_TOKENS': False,  
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=365), 
     'BLACKLIST_AFTER_ROTATION': True,  
     'AUTH_HEADER_TYPES': ('Bearer',),
-    'AUTH_COOKIE': 'access_token',  # Cookie name. Enables cookies if value is set.
-    'AUTH_COOKIE_DOMAIN': None,     # A string like "example.com", or None for standard domain cookie.
-    'AUTH_COOKIE_SECURE': False,    # Whether the auth cookies should be secure (https:// only).
-    'AUTH_COOKIE_HTTP_ONLY' : True, # Http only cookie flag.It's not fetch by javascript.
-    'AUTH_COOKIE_PATH': '/',        # The path of the auth cookie.
-    'AUTH_COOKIE_SAMESITE': 'Lax',  # Whether to set the flag restricting cookie leaks on cross-site requests.
 }
 
 AUTH_USER_MODEL = 'users.User'

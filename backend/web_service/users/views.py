@@ -13,6 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import AuthenticationFailed
+from datetime import timedelta
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -25,21 +26,18 @@ class MyTokenObtainPairView(TokenObtainPairView):
                     key="refresh_token",
                     value=refresh,
                     httponly=True,
-                    secure=False,  # Работает только с HTTPS
-                    samesite="Strict",  # Защищает от CSRF
-                    max_age=365 * 24 * 60 * 60,  # Истекает через 365 дней
+                    samesite='Lax',
+                    max_age=timedelta(days=365)
                 )
         return super().finalize_response(request, response, *args, **kwargs)
 
 
 class RefreshTokenView(APIView):
     def post(self, request):
-        # Получаем refresh токен из куки
-        refresh_token = request.COOKIES.get('refresh_token')
-        
+        refresh_token = request.data.get('refresh')
         if not refresh_token:
-            raise AuthenticationFailed('Refresh token not provided in cookies')
-        
+            raise AuthenticationFailed('Refresh token not provided')
+
         try:
             # Декодируем refresh токен
             refresh = RefreshToken(refresh_token)
@@ -51,7 +49,7 @@ class RefreshTokenView(APIView):
 
         # Возвращаем новый access токен
         return Response({
-            'access_token': str(access_token)
+            'access': str(access_token)
         })
 
 
@@ -60,6 +58,7 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        print(request.data)
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
