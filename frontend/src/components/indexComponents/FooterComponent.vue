@@ -17,13 +17,13 @@
           <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
             <h6 class="text-uppercase mb-4 fw-bold">Ссылки</h6>
             <p>
-              <a class="text-black-src" href="#" style="font-family: 'Geologica';">Модель</a>
+              <router-link to="/#modelSection" class="text-black-src" style="font-family: 'Geologica';">Модель</router-link>
             </p>
             <p>
-              <a class="text-black-src" href="#" style="font-family: 'Geologica';">Личный кабинет</a>
+              <router-link to="/workspace/" class="text-black-src" style="font-family: 'Geologica';">Рабочая среда</router-link>
             </p>
             <p>
-              <a class="text-black-src" href="#" style="font-family: 'Geologica';">Регистрация</a>
+              <router-link to="/auth/register/" class="text-black-src" style="font-family: 'Geologica';">Регистрация</router-link>
             </p>
             
           </div>

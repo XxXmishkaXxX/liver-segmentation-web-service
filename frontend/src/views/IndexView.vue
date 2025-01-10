@@ -1,26 +1,28 @@
 <template>
   <div class="container mt-5">
-    <div class="row align-items-center">
-      <div class="col-md-99 mb-5">
-        <div class="display-5 text-white" style="font-family: 'Geologica'; font-size: 3.2vh; position: relative;">
-          <span style="position: absolute; left: 20%; transform: translateX(-340%); width: 10%; height: 5px; background-color: white; top: 17%;"></span>
-          Инновационный сайт, специализирующийся на сегментации печени.
-        </div>
-        <div class="mt-2 h5" style="font-family: 'Geologica-SemiBold'; color: #858585;">
-          мы обеспечиваем медицинских специалистов<br>
-          инструментами для анализа и визуализации, чтобы<br>
-          повысить качество диагностики и лечения.
-        </div>
-        <div class="mt-5">
-          <router-link to="/auth/register/" class="btn btn-outline-light hover-outline" style="width: 250px; height: 60px; border-radius: 30px; color: white; border-color: white; transition: all 0.1s ease;">
-            Начать
-          </router-link>
-        </div>
-      </div>
-      <div class="col-md-3" style="margin-left: 39.9vh;">
-        <img src="../assets/img/index/chel.png" alt="" class="img-fluid toggle-image">
-      </div>
+    <div class="row align-items-center gap-200px">
+  <div class="text col-md-6 mb-5" style="display: flex; flex-direction: column; justify-content: flex-start;">
+    <div class="display-5 text-white" style="font-family: 'Geologica'; font-size: 3.2vh; position: relative;">
+      <span style="position: absolute; left: 20%; transform: translateX(-340%); width: 10%; height: 5px; background-color: white; top: 17%;"></span>
+      Инновационный сайт, специализирующийся на сегментации печени.
     </div>
+    <div class="mt-2 h5" style="font-family: 'Geologica-SemiBold'; color: #858585;">
+      мы обеспечиваем медицинских специалистов<br>
+      инструментами для анализа и визуализации, чтобы<br>
+      повысить качество диагностики и лечения.
+    </div>
+    <div class="mt-5">
+      <router-link to="/auth/register/" >
+      <button class="btn btn-outline-light hover-outline" style="width: 250px; height: 60px; border-radius: 30px; color: white; border-color: white; transition: all 0.1s ease;">
+        Начать
+      </button>
+    </router-link>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <img src="../assets/img/index/chel.png" alt="" class="img-fluid float-right">
+  </div>
+</div>
   </div>
 
   <div style="width: 100%; height: 1px; background-color: white;"></div>
@@ -136,5 +138,8 @@ export default{
 <style scoped>
 h1 {
   color: #2c3e50;
+}
+.gap-200px{
+  gap: 200px;
 }
 </style>

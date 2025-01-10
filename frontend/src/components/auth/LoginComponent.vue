@@ -33,8 +33,12 @@ export default {
           password: this.password,
         });
 
-        if (loginResponse.data.access) {
+        if (loginResponse.data.access && loginResponse.data.refresh) {
+          // Сохраняем access токен в localStorage
           localStorage.setItem('access_token', loginResponse.data.access);
+          
+          localStorage.setItem('refresh_token', loginResponse.data.refresh)
+
           this.$router.push('/workspace/');
         }
       } catch (error) {
