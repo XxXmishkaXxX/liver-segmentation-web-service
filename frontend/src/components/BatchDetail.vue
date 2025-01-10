@@ -23,13 +23,8 @@
       :initialMaskUrl="null" 
       @save="saveEditedMask"
       @close="isEditing = false"
-      />
-    <SpinnerLoader v-if="loadingUpload || loadingPredict" />
-    <StatusMessages
-      v-if="statusMessage || uploadError"
-      :statusMessage="statusMessage"
-      :uploadError="uploadError"
     />
+    <SpinnerLoader v-if="loadingUpload || loadingPredict" />
   </div>
 </template>
 
@@ -37,24 +32,23 @@
 import UploadArea from './mainContentComponents/UploadArea.vue';
 import ImagePreview from './mainContentComponents/ImagePreview.vue';
 import SpinnerLoader from './mainContentComponents/SpinnerLoader.vue';
-import StatusMessages from './mainContentComponents/StatusMessages.vue';
 import MaskEditor from './mainContentComponents/MaskEditor.vue';
+import { toastMixin } from '../mixins/notifications';
 
 export default {
-  components: { UploadArea, ImagePreview, MaskEditor, SpinnerLoader, StatusMessages },
+  mixins: [toastMixin],
+  components: { UploadArea, ImagePreview, MaskEditor, SpinnerLoader },
   data() {
     return {
-      masks: [], // Список масок (фотографий)
-      selectedMaskIndex: 0, // Индекс текущей маски
-      loadingUpload: false, // Статус загрузки файлов
-      loadingPredict: false, // Статус предикта
-      uploadError: null, // Ошибка загрузки
-      statusMessage: null, // Сообщение о статусе
-      batch_id: null, // ID текущего батча
-      task_id: null, // ID задачи
-      previewImage: require('../assets/images/dcm-file-document-icon-vector-24678549.jpg'),
-      nextUrl: null, // URL для загрузки следующей порции масок
-      hasMoreMasks: true, // Флаг, есть ли еще маски
+      masks: [],
+      selectedMaskIndex: 0,
+      loadingUpload: false,
+      loadingPredict: false,
+      batch_id: null,
+      task_id: null,
+      previewImage: new URL('../assets/dcm-icon.png', import.meta.url),
+      nextUrl: null,
+      hasMoreMasks: true,
       isEditing: false,
     };
   },
@@ -68,7 +62,7 @@ export default {
       this.masks = [];
     },
     triggerFileInput() {
-      this.$refs.fileInput.click(); // Инициализация загрузки файлов
+      this.$refs.fileInput.click();
     },
 
     async handleFileUpload(event) {
@@ -92,7 +86,7 @@ export default {
 
         this.batch_id = response.data.id;
         if (this.batch_id) {
-          await this.predictBatch(); // Запуск предсказания для нового батча
+          await this.predictBatch();
         }
       } catch (error) {
         console.error('Ошибка загрузки изображений:', error);
@@ -108,7 +102,7 @@ export default {
         const response = await this.$api.get(`batch/${this.batch_id}/predict/`);
         this.task_id = response.data.task_id;
         if (this.task_id) {
-          this.checkTaskStatus(); // Проверка статуса задачи
+          this.checkTaskStatus();
         }
       } catch (error) {
         console.error('Ошибка запуска предсказания:', error);
@@ -117,28 +111,28 @@ export default {
     },
 
     async checkTaskStatus() {
-  const interval = setInterval(async () => {
-    try {
-      const response = await this.$api.get(`task-status/${this.task_id}/`);
-      if (response.data.status === 'SUCCESS') {
-        clearInterval(interval);
-        this.$emit("add-batch-in-sidebar");
-        this.statusMessage = 'Предсказание успешно завершено!';
-        await this.getBatchResults(); // Получение результатов по завершению задачи
-        this.loadingPredict = false; // Выключаем индикатор загрузки
-      } else if (response.data.status === 'FAILURE') {
-        clearInterval(interval);
-        this.uploadError = 'Ошибка при обработке задач.';
-        this.loadingPredict = false; // Выключаем индикатор загрузки
-      }
-    } catch (error) {
-      console.error('Ошибка проверки статуса задачи:', error);
-      this.uploadError = 'Не удалось проверить статус задачи.';
-      clearInterval(interval);
-      this.loadingPredict = false; // Выключаем индикатор загрузки в случае ошибки
-    }
-  }, 3000); // Проверяем статус каждые 3 секунды
-},
+      const interval = setInterval(async () => {
+        try {
+          const response = await this.$api.get(`task-status/${this.task_id}/`);
+          if (response.data.status === 'SUCCESS') {
+            clearInterval(interval);
+            this.$emit("add-batch-in-sidebar");
+            this.showSuccessMessage('Модель успешно создала маски для ваших снимков')
+            await this.getBatchResults();
+            this.loadingPredict = false;
+          } else if (response.data.status === 'FAILURE') {
+            clearInterval(interval);
+            this.showErrorMessage('произошла ошибка при создании масок')
+            this.loadingPredict = false;
+          }
+        } catch (error) {
+          console.error('Ошибка проверки статуса задачи:', error);
+          this.showErrorMessage('Произошла ошибка при создании масок')
+          clearInterval(interval);
+          this.loadingPredict = false;
+        }
+      }, 3000);
+    },
 
     async getBatchResults() {
       try {
@@ -146,11 +140,11 @@ export default {
         this.masks = response.data.results.map((item) => ({
             id: item.mask[1],
             maskUrl: item.mask[0],
-            originalUrl: item.original[0], // URL оригинального изображения
+            originalUrl: item.original[0],
           }));
         this.nextUrl = response.data.next;
         this.hasMoreMasks = !!this.nextUrl;
-        this.selectedMaskIndex = 0; // Сброс индекса на 0 для отображения первой маски
+        this.selectedMaskIndex = 0;
       } catch (error) {
         console.error('Ошибка получения результатов:', error);
         this.uploadError = 'Не удалось получить результаты.';
@@ -161,7 +155,7 @@ export default {
       if (this.selectedMaskIndex < this.masks.length - 1) {
         this.selectedMaskIndex++;
       } else if (this.hasMoreMasks && this.nextUrl) {
-        await this.fetchNextMasks(); // Загрузка следующей порции масок
+        await this.fetchNextMasks();
       }
     },
 
@@ -181,7 +175,7 @@ export default {
           originalUrl: item.original[0],
         }));
 
-        this.masks.push(...newMasks); // Добавляем новые маски в список
+        this.masks.push(...newMasks);
         this.nextUrl = response.data.next;
 
         if (!this.nextUrl) {
@@ -198,7 +192,7 @@ export default {
       console.log('Редактирование маски с ID:', maskId);
       const mask = this.masks.find((m) => m.id === maskId);
       if (mask) {
-        this.isEditing = true; // Включаем редактор
+        this.isEditing = true;
       } else {
         console.error('Маска не найдена!');
       }
@@ -207,85 +201,50 @@ export default {
       this.isEditing = true;
     },
     async saveEditedMask(newMaskData) {
-  try {
-    // Проверим, если строка Base64 начинается с префикса 'data:image'
-    if (newMaskData.startsWith('data:image')) {
-      // Отрезаем префикс 'data:image/*;base64,' для получения чистой строки Base64
-      const base64String = newMaskData.split(';base64,')[1];
+      try {
+        if (newMaskData.startsWith('data:image')) {
+          const base64String = newMaskData.split(';base64,')[1];
+          const byteCharacters = atob(base64String);
+          const byteArrays = [];
 
-      // Декодируем Base64 в бинарные данные
-      const byteCharacters = atob(base64String);
-      const byteArrays = [];
+          for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+            const slice = byteCharacters.slice(offset, offset + 1024);
+            const byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) {
+              byteNumbers[i] = slice.charCodeAt(i);
+            }
+            byteArrays.push(new Uint8Array(byteNumbers));
+          }
 
-      for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
-        const slice = byteCharacters.slice(offset, offset + 1024);
-        const byteNumbers = new Array(slice.length);
-        for (let i = 0; i < slice.length; i++) {
-          byteNumbers[i] = slice.charCodeAt(i);
-        }
-        byteArrays.push(new Uint8Array(byteNumbers));
+          const blob = new Blob(byteArrays, { type: 'image/png' });
+          const file = new File([blob], 'new_mask.png', { type: 'image/png' });
+
+          const formData = new FormData();
+          formData.append('new_mask', file);
+
+          const response = await this.$api.put(
+            `/update-mask/${this.currentMask.id}/`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data'}
+            }
+          );
+
+          console.log('Маска сохранена:', response.data);
+          this.isEditing = false;
+
+          this.masks.find((mask) => mask.id === this.currentMask.id).maskUrl = response.data.newMaskUrl;
+        } 
+      } catch (error) {
+        console.error('Ошибка сохранения маски:', error);
       }
-
-      // Создаем объект Blob из бинарных данных
-      const blob = new Blob(byteArrays, { type: 'image/png' }); // Убедитесь, что тип соответствует вашему изображению
-
-      // Создаем файл из Blob
-      const file = new File([blob], 'new_mask.png', { type: 'image/png' });
-
-      // Создаем FormData и добавляем файл
-      const formData = new FormData();
-      formData.append('new_mask', file);
-
-      // Отправляем PUT запрос с FormData
-      const response = await this.$api.put(
-        `/update-mask/${this.currentMask.id}/`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'}
-        }
-      );
-
-      console.log('Маска сохранена:', response.data);
-      this.isEditing = false;
-
-      // Обновить маску в списке
-      this.masks.find((mask) => mask.id === this.currentMask.id).maskUrl = response.data.newMaskUrl;
-    } 
-  } catch (error) {
-    console.error('Ошибка сохранения маски:', error);
-  }
-},
+    },
   },
 };
 </script>
 
 <style scoped>
-
-
-.upload-area {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 400px;
-  height: 300px;
-  border: 2px dashed #ccc;
-  cursor: pointer;
-  background: #f9f9f9;
-  text-align: center;
-  border-radius: 10px;
-}
-
-.upload-area img {
-  height: 100px;
-  margin-bottom: 10px;
-}
-
-.placeholder {
-  color: #888;
-  font-size: 14px;
-}
-
 .preview {
   display: flex;
   flex-direction: column;
@@ -328,5 +287,13 @@ export default {
 .status-message {
   text-align: center;
   color: green;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
 }
 </style>

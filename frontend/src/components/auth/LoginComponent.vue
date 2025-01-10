@@ -1,26 +1,16 @@
 <template>
-  <div class="container mt-5 text-white">
-    <div class="row justify-content-center">
-      <div class="col-md-6">
-        <h2 class="text-center mb-4">Войти</h2>
-        <form @submit.prevent="loginUser">
-          <div class="mb-3">
-            <label for="email" class="form-label">Email:</label>
-            <input type="email" id="email" v-model="email" class="form-control" required />
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Пароль:</label>
-            <input type="password" id="password" v-model="password" class="form-control" required />
-          </div>
-          <div class="d-grid">
-            <button type="submit" class="btn btn-primary">Войти</button>
-          </div>
-        </form>
-        <p class="mt-3 text-center">
-          Нет аккаунта? <a href="#" @click.prevent="$emit('switch-form')">Зарегистрироваться</a>
-        </p>
+  <div class="container mt-5 login-box mb-10">
+    <h2>Войти</h2>
+    <form @submit.prevent="loginUser" class="mb-3">
+      <div class="mb-3">
+        <input type="email" id="email" v-model="email" placeholder="Почта" class="form-control custom-input" required />
       </div>
-    </div>
+      <div class="mb-3">
+        <input type="password" id="password" v-model="password" placeholder="Пароль" class="form-control custom-input" required />
+      </div>
+      <button type="submit" class="submit-button">Войти</button>
+    </form>
+    <p>Нет аккаунта? <a href="#" @click.prevent="$emit('switch-form')">Зарегистрироваться</a></p>
   </div>
 </template>
 
@@ -44,12 +34,10 @@ export default {
         });
 
         if (loginResponse.data.access) {
-          // Сохраняем токен и переходим в рабочую область
           localStorage.setItem('access_token', loginResponse.data.access);
           this.$router.push('/workspace/');
         }
       } catch (error) {
-        // Show error message if there is an issue
         this.showErrorMessage(error.response?.data?.email || 'Ошибка авторизации');
       }
     },
@@ -58,5 +46,65 @@ export default {
 </script>
 
 <style scoped>
-/* Add any additional styles here if needed */
+.login-box {
+  max-width: 400px;
+  padding: 20px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.mb-10 {
+  margin-bottom: 100px;
+}
+
+.custom-input {
+  border: none;
+  border-bottom: 2px solid #000;
+  background: transparent;
+  color: #000;
+  padding: 10px;
+  width: 100%;
+  box-shadow: none;
+  border-radius: 0px;
+}
+
+.custom-input:focus {
+  outline: none;
+  border-bottom: 2px solid #333;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 10px;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background: #555;
+}
+
+p {
+  text-align: center;
+  font-size: 14px;
+}
+
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
 </style>
