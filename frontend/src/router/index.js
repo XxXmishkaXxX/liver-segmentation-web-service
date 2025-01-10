@@ -9,9 +9,16 @@ const router = createRouter({
             component: () => import('../views/IndexView.vue'),
         },
         {
-            path: '/auth',
-            name: 'Authentication', 
+            path: '/auth/login',
+            name: 'LoginPage',
             component: () => import('../views/AuthView.vue'),
+            props: { initialForm: 'login' }, // Передаем форму логина
+        },
+        {
+            path: '/auth/register',
+            name: 'RegisterPage',
+            component: () => import('../views/AuthView.vue'),
+            props: { initialForm: 'register' }, // Передаем форму регистрации
         },
         {
             path: '/workspace',

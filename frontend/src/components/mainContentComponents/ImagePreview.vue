@@ -3,12 +3,12 @@
     <div class="carousel">
       <!-- Кнопка для предыдущей маски -->
       <button @click="prevMask" :disabled="!hasPreviousMask" class="nav-button">
-        ⬅️
+        <i class="bi bi-chevron-compact-left"></i>
       </button>
       
       <!-- Превью маски -->
       <div class="mask-preview">
-        <div class="image-mask-container">
+        <div class="image-mask-container border border-white">
           <img :src="currentMask.originalUrl" alt="Original Image" class="original-image" />
           <img 
             v-if="showMask" 
@@ -17,20 +17,21 @@
             class="mask-image" 
           />
         </div>
-        <p>ID маски: {{ currentMask.id }}</p>
-        <button @click="editMask(currentMask.id)">Редактировать</button>
-        <!-- Кнопка для показа/скрытия маски -->
-        <button @click="toggleMask" class="toggle-mask-button">
-          {{ showMask ? 'Скрыть маску' : 'Показать маску' }}
-        </button>
+        <div class="d-flex row btn-group mt-3 mb-3">
+          <button @click="editMask(currentMask.id)" class="btn btn-primary rounded mt-2">Редактировать</button>
+          <!-- Кнопка для показа/скрытия маски -->
+          <button @click="toggleMask" class="toggle-mask-button">
+            {{ showMask ? 'Скрыть маску' : 'Показать маску' }}
+          </button>
+        </div>
       </div>
       
       <!-- Кнопка для следующей маски -->
       <button @click="nextMask" :disabled="!hasNextMask" class="nav-button">
-        ➡️
+        <i class="bi bi-chevron-compact-right"></i>
       </button>
     </div>
-    <button @click="backToUpload">Назад</button>
+    <button @click="backToUpload" class="btn btn-danger">Назад</button>
 
     <!-- Сообщение при отсутствии масок -->
     <p v-if="!masks.length" class="no-masks-message">

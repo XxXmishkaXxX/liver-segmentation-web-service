@@ -1,6 +1,6 @@
 <template>
-  <div class="mask-editor">
-    <div class="image-container" :style="{ backgroundImage: 'url(' + backgroundImageUrl + ')' }">
+  <div class="mask-editor text-white">
+    <div class="image-container border" :style="{ backgroundImage: 'url(' + backgroundImageUrl + ')' }">
       <canvas
         ref="canvas"
         class="canvas"
@@ -16,11 +16,17 @@
         <input type="range" v-model="currentBrushSize" min="1" max="50" />
         {{ currentBrushSize }}
       </label>
-      <button @click="toggleEraser">{{ isErasing ? 'Кисть' : 'Ластик' }}</button>
-      <button @click="undo">Отменить</button>
-      <button @click="saveMask">Сохранить</button>
-      <button @click="$emit('close')">Закрыть</button>
-      <button @click="toggleMaskVisibility">{{ isMaskHidden ? 'Показать маску' : 'Скрыть маску' }}</button>
+      <button @click="toggleEraser" class="btn btn-primary">
+        <i class="bi" :class="isErasing ? 'bi-brush' : 'bi-eraser'"></i>
+      </button>
+      <button @click="undo" class="btn btn-warning text-white">
+        <i class="bi bi-arrow-counterclockwise"></i> Отменить
+      </button>
+      <button @click="toggleMaskVisibility" class="btn btn-info text-white">
+        <i :class="isMaskHidden ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+      </button>
+      <button @click="saveMask" class="btn btn-success">Сохранить</button>
+      <button @click="$emit('close')" class="btn btn-danger">Закрыть</button>
     </div>
   </div>
 </template>
@@ -171,5 +177,9 @@ export default {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+button i {
+  color: white;
 }
 </style>

@@ -1,10 +1,10 @@
 <template>
-  <div class="workspace">
+  <div class="workspace d-flex">
     <BatchSidebar class="sidebar" 
-                  ref="sideBar" 
-                  @select-batch="selectBatch"
-                  @clear-preview-area="clearPreviewArea" />
-    <BatchDetail ref="batchDetail" @add-batch-in-sidebar="addBatchInSideBar" />
+                ref="sideBar" 
+                @select-batch="selectBatch"
+                @clear-preview-area="clearPreviewArea" />
+    <BatchDetail ref="batchDetail" class="detail" @add-batch-in-sidebar="addBatchInSideBar" />
   </div>
 </template>
 
@@ -45,30 +45,33 @@ export default {
 </script>
 
 <style scoped>
+
 .workspace {
-  position: relative;
+  display: flex;
   height: 100vh;
-  overflow: hidden;
+  padding: 20px;
+  gap: 20px; /* Расстояние между колонками */
+  background-image: url('@/assets/img/workspace/background.svg');
 }
 
 .sidebar {
-  position: absolute; /* Абсолютное позиционирование */
-  top: 0;
-  left: 0;
-  width: 300px; /* Ширина сайдбара */
-  height: 100%; /* Занимает всю высоту */
-  background: #f4f4f4;
-  z-index: 10; /* Поверх основного контента */
+
+  flex: 0 0 300px; /* Фиксированная ширина для сайдбара */
+  height: 100%;
+  background: rgba(255, 255, 255, 0);
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
+  scrollbar-width: none;
+
 }
-.main-content {
+
+.detail {
+  flex: 1; /* Займет оставшееся пространство */
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  padding: 20px;
-  margin-left: 300px; /* Отступ слева, равный ширине сайдбара */
-  background: #fff;
+  height: 100%;
 }
+
+
 </style>
