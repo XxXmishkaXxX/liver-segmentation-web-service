@@ -16,19 +16,22 @@ from rest_framework.exceptions import AuthenticationFailed
 from datetime import timedelta
 
 
+
 class MyTokenObtainPairView(TokenObtainPairView):
     def finalize_response(self, request, response, *args, **kwargs):
         if response.status_code == 200:
+            # Получаем access и refresh токены из ответа
+            access = response.data.get("access")
             refresh = response.data.get("refresh")
-            if refresh:
-                # Устанавливаем refresh token в HttpOnly куку
-                response.set_cookie(
-                    key="refresh_token",
-                    value=refresh,
-                    httponly=True,
-                    samesite='Lax',
-                    max_age=timedelta(days=365)
-                )
+            
+            if access and refresh:
+               
+                # Возвращаем access токен в теле ответа
+                response.data = {
+                    'access': access,
+                    'refresh': refresh
+                }
+
         return super().finalize_response(request, response, *args, **kwargs)
 
 
