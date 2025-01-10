@@ -12,10 +12,10 @@
             </div>
           </div>
           <div class="action-buttons">
-            <button class="btn btn-success" @click.stop="downloadBatch(batch.id)">
+            <button class="btn btn-success" @click.stop="openModal(batch.id)">
               <i class="fas fa-download"></i>
             </button>
-            <button class="btn btn-danger" @click.stop="deleteBatch(batch.id)">
+            <button class="btn btn-danger" @click.stop="openDeleteModal(batch.id)">
               <i class="fas fa-trash-alt"></i>
             </button>
           </div>
@@ -25,7 +25,40 @@
       <div v-if="error" class="error">{{ error }}</div>
     </div>
   </div>
+
+  <!-- Модальное окно для выбора опций скачивания -->
+  <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
+    <div class="modal-content" @click.stop>
+      <h3>Выберите опции для скачивания</h3>
+      <div>
+        <input type="checkbox" v-model="includeOverlay" id="include-overlay">
+        <label for="include-overlay">Маски поверх оригинала</label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" @click="closeModal">Закрыть</button>
+        <button class="btn btn-success" @click="downloadBatchWithOptions">Скачать</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно для подтверждения удаления -->
+  <div v-if="isDeleteModalOpen" class="modal-overlay" @click="closeDeleteModal">
+    <div class="modal-content" @click.stop>
+      <h3>Вы уверены, что хотите удалить этот батч?</h3>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" @click="closeDeleteModal">Отмена</button>
+        <button class="btn btn-danger" @click="confirmDeleteBatch">Удалить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Спиннер (колесо ожидания) -->
+  <div v-if="isDownloading" class="loading-overlay">
+    <div class="spinner"></div>
+    Загрузка...
+  </div>
 </template>
+
 
 <script>
 export default {
@@ -35,7 +68,10 @@ export default {
       loading: false,
       error: null,
       isModalOpen: false,
-      previewImage: require('../assets/images/dcm-file-document-icon-vector-24678549.jpg'),
+      isDownloading: false,
+      isDeleteModalOpen: false, // State to track delete confirmation modal
+      selectedBatchId: null,
+      includeOverlay: false,
     };
   },
   methods: {
@@ -51,60 +87,48 @@ export default {
         this.loading = false;
       }
     },
-    openUploadModal() {
+    openModal(batchId) {
+      this.selectedBatchId = batchId;
       this.isModalOpen = true;
     },
     closeModal() {
       this.isModalOpen = false;
     },
-    async handleFileUpload(event) {
-      const files = Array.from(event.target.files);
-      if (!files.length) return;
-
-      const formData = new FormData();
-      files.forEach(file => formData.append('files', file));
-
-      this.loading = true;
-      this.error = null;
-      try {
-        const response = await this.$api.post('upload/', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        this.batch_id = response.data.id;
-        if (this.batch_id) await this.predictBatch();
-      } catch {
-        this.error = 'Не удалось загрузить изображения. Попробуйте снова.';
-      } finally {
-        this.loading = false;
-        this.closeModal();
-      }
+    openDeleteModal(batchId) {
+      this.selectedBatchId = batchId;
+      this.isDeleteModalOpen = true;
     },
-    async deleteBatch(batchId) {
-      if (!confirm("Вы уверены, что хотите удалить этот батч?")) return;
-
+    closeDeleteModal() {
+      this.isDeleteModalOpen = false;
+    },
+    async confirmDeleteBatch() {
       this.loading = true;
       try {
-        await this.$api.delete(`delete-batch/${batchId}/`);
-        this.batches = this.batches.filter(batch => batch.id !== batchId);
-        this.$emit("clear-preview-area", batchId);
+        await this.$api.delete(`delete-batch/${this.selectedBatchId}/`);
+        this.batches = this.batches.filter(batch => batch.id !== this.selectedBatchId);
+        this.$emit("clear-preview-area", this.selectedBatchId);
+        this.closeDeleteModal();
       } catch {
         alert("Не удалось удалить батч.");
       } finally {
         this.loading = false;
       }
     },
-    async downloadBatch(batchId) {
+    async downloadBatchWithOptions() {
+      this.isDownloading = true;
       try {
-        const response = await this.$api.get(`batches/${batchId}/download/`, { responseType: 'blob' });
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `batch-${batchId}.zip`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+        const url = `batch/${this.selectedBatchId}/download/?include_overlay=${this.includeOverlay}`;
+        const response = await this.$api.get(url, { responseType: 'blob' });
+        const urlBlob = URL.createObjectURL(response.data);
+        const a = document.createElement('a');
+        a.href = urlBlob;
+        a.download = `masks_${this.selectedBatchId}.zip`;
+        a.click();
+        this.closeModal();
       } catch {
         alert("Не удалось скачать батч.");
+      } finally {
+        this.isDownloading = false;
       }
     },
     selectBatch(batchId) {
@@ -122,9 +146,12 @@ export default {
 };
 </script>
 
+
+
+
 <style scoped>
 .batch-sidebar {
-  width: 100%;
+  width: 300px;
   padding: 20px 0;
   background: rgba(255, 255, 255, 0);
   display: flex;
@@ -181,5 +208,62 @@ export default {
   color: red;
   text-align: center;
 }
-</style>
 
+/* Стили для модального окна */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  text-align: center;
+}
+
+.modal-actions {
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  margin: 0 10px;
+}
+
+/* Стили для спиннера */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>

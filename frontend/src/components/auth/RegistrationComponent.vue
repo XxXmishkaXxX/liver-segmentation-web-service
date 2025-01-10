@@ -37,7 +37,9 @@ export default {
   data() {
     return {
       email: '',
-      username: '',
+
+      firstName: '',
+      lastName: '',
       password: '',
       confirmPassword: '',
       dataConsent: false,
@@ -49,9 +51,10 @@ export default {
     async registerUser() {
       try {
         const response = await this.$api.post('users/registration/', {
+          first_name: this.firstName,
+          last_name: this.lastName,
           email: this.email,
-          username: this.username,
-          password: this.password
+          password: this.password,
         });
         if (response.data.success) {
           this.showInfoMessage(`На почту ${this.email} пришел код для подтверждения почты`);

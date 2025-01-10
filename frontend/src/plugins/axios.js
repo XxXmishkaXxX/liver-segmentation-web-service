@@ -22,6 +22,8 @@ api.interceptors.request.use(
   }
 );
 
+api.defaults.withCredentials = true;
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -31,21 +33,25 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // Добавляем задержку перед запросом на обновление токена
-        await new Promise((resolve) => setTimeout(resolve, 10000)); // 10 секунд
+        // Получаем refresh токен из локального хранилища
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
 
-        const response = await api.post('users/token/refresh/', {}, { withCredentials: true });
+        const response = await api.post('users/token/refresh/', { refresh: refreshToken }, { withCredentials: true });
 
         const newAccessToken = response.data.access;
         localStorage.setItem('access_token', newAccessToken);
 
+        // Повторяем запрос с новым access токеном
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
         return api(originalRequest); // Повторяем запрос с новым токеном
       } catch (refreshError) {
         console.error('Refresh token expired or invalid', refreshError);
 
         const router = useRouter();
-        router.push('/auth/');
+        router.push('/auth/'); // Перенаправляем на страницу авторизации
         return Promise.reject(refreshError);
       }
     }

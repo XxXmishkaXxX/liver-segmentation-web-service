@@ -1,13 +1,13 @@
 <template>
   <div class="container mt-5">
-    <h2>Подтверждение Email</h2>
     <form @submit.prevent="verifyCode">
       <div class="mb-3">
         <label for="code" class="form-label">Код подтверждения:</label>
-        <input type="text" id="code" v-model="code" class="form-control" required />
+        <input type="text" id="code" v-model="code" class="form-control custom-input" required />
       </div>
       <div class="mb-3">
-        <button type="submit" class="btn btn-primary">Подтвердить</button>
+        <button type="submit" class="btn btn-dark">Подтвердить</button>
+
       </div>
     </form>
   </div>
@@ -59,4 +59,19 @@ export default {
 .container {
   max-width: 500px;
 }
+.custom-input {
+  border: none;
+  border-bottom: 2px solid #000;
+  background: transparent;
+  color: #000;
+  padding: 10px;
+  width: 100%;
+  box-shadow: none;
+  border-radius: 0px;
+}
+.custom-input:focus {
+  outline: none;
+  border-bottom: 2px solid #333;
+}
+
 </style>
