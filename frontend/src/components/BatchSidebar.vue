@@ -15,7 +15,7 @@
             <button class="btn btn-success" @click.stop="openModal(batch.id)">
               <i class="fas fa-download"></i>
             </button>
-            <button class="btn btn-danger" @click.stop="deleteBatch(batch.id)">
+            <button class="btn btn-danger" @click.stop="openDeleteModal(batch.id)">
               <i class="fas fa-trash-alt"></i>
             </button>
           </div>
@@ -41,13 +41,23 @@
     </div>
   </div>
 
+  <!-- Модальное окно для подтверждения удаления -->
+  <div v-if="isDeleteModalOpen" class="modal-overlay" @click="closeDeleteModal">
+    <div class="modal-content" @click.stop>
+      <h3>Вы уверены, что хотите удалить этот батч?</h3>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" @click="closeDeleteModal">Отмена</button>
+        <button class="btn btn-danger" @click="confirmDeleteBatch">Удалить</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Спиннер (колесо ожидания) -->
   <div v-if="isDownloading" class="loading-overlay">
     <div class="spinner"></div>
     Загрузка...
   </div>
 </template>
-
 
 
 <script>
@@ -58,9 +68,10 @@ export default {
       loading: false,
       error: null,
       isModalOpen: false,
-      isDownloading: false,  // Флаг для отображения спиннера
+      isDownloading: false,
+      isDeleteModalOpen: false, // State to track delete confirmation modal
       selectedBatchId: null,
-      includeOverlay: false,  // Для хранения состояния чекбокса
+      includeOverlay: false,
     };
   },
   methods: {
@@ -83,24 +94,41 @@ export default {
     closeModal() {
       this.isModalOpen = false;
     },
+    openDeleteModal(batchId) {
+      this.selectedBatchId = batchId;
+      this.isDeleteModalOpen = true;
+    },
+    closeDeleteModal() {
+      this.isDeleteModalOpen = false;
+    },
+    async confirmDeleteBatch() {
+      this.loading = true;
+      try {
+        await this.$api.delete(`delete-batch/${this.selectedBatchId}/`);
+        this.batches = this.batches.filter(batch => batch.id !== this.selectedBatchId);
+        this.$emit("clear-preview-area", this.selectedBatchId);
+        this.closeDeleteModal();
+      } catch {
+        alert("Не удалось удалить батч.");
+      } finally {
+        this.loading = false;
+      }
+    },
     async downloadBatchWithOptions() {
-      this.closeModal();
-      this.isDownloading = true;  // Показываем спиннер
+      this.isDownloading = true;
       try {
         const url = `batch/${this.selectedBatchId}/download/?include_overlay=${this.includeOverlay}`;
         const response = await this.$api.get(url, { responseType: 'blob' });
-        
-        // Создаем ссылку для скачивания
         const urlBlob = URL.createObjectURL(response.data);
         const a = document.createElement('a');
         a.href = urlBlob;
         a.download = `masks_${this.selectedBatchId}.zip`;
         a.click();
-        
+        this.closeModal();
       } catch {
         alert("Не удалось скачать батч.");
       } finally {
-        this.isDownloading = false;  // Скрываем спиннер после завершения загрузки
+        this.isDownloading = false;
       }
     },
     selectBatch(batchId) {
@@ -117,6 +145,8 @@ export default {
   },
 };
 </script>
+
+
 
 
 <style scoped>
