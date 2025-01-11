@@ -42,6 +42,7 @@ export default {
           if (loginResponse.data.access) {
             // Сохраняем токен и переходим в рабочую область
             localStorage.setItem('access_token', loginResponse.data.access);
+            localStorage.setItem('refresh_token', loginResponse.data.refresh)
             this.$router.push('/workspace/');
           }
         }
