@@ -25,6 +25,7 @@
 </div>
   </div>
 
+
   <div style="width: 100%; height: 1px; background-color: white;"></div>
 
   <div id="aboutSection" class="mt-5">
@@ -139,6 +140,7 @@ export default{
 h1 {
   color: #2c3e50;
 }
+
 .gap-200px{
   gap: 200px;
 }

@@ -24,6 +24,7 @@
             </p>
             <p>
               <router-link to="/auth/register/" class="text-black-src" style="font-family: 'Geologica';">Регистрация</router-link>
+
             </p>
             
           </div>

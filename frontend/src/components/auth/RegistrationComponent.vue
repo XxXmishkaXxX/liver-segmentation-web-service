@@ -37,6 +37,7 @@ export default {
   data() {
     return {
       email: '',
+
       firstName: '',
       lastName: '',
       password: '',

@@ -7,6 +7,7 @@
       </div>
       <div class="mb-3">
         <button type="submit" class="btn btn-dark">Подтвердить</button>
+
       </div>
     </form>
   </div>
@@ -59,7 +60,6 @@ export default {
 .container {
   max-width: 500px;
 }
-
 .custom-input {
   border: none;
   border-bottom: 2px solid #000;
@@ -74,4 +74,5 @@ export default {
   outline: none;
   border-bottom: 2px solid #333;
 }
+
 </style>
