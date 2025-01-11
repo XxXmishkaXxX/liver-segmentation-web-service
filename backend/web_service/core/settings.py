@@ -10,7 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY_DJANGO")
 
-DEBUG = True
+DEBUG = False
+
+ALLOWED_HOSTS = ['backend', 'frontend', 'localhost', '127.0.0.1']
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8081',  # URL вашего фронтенда (например, для локальной разработки)
@@ -122,8 +124,8 @@ DATABASES = {
 }
 
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Указывает на Redis, работающий на localhost
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Используется для хранения результатов задач
+CELERY_BROKER_URL = 'redis://redis:6379/0'  # Указывает на Redis, работающий на localhost
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'  # Используется для хранения результатов задач
 CELERY_TASK_ALWAYS_EAGER = False 
 CELERY_RETRY = True
 CELERY_RETRY_POLICY = {
