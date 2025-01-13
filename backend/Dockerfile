@@ -15,9 +15,6 @@ RUN pip cache purge
 # Установка зависимостей
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Установка Celery
-RUN pip install --no-cache-dir celery[redis]
-
 # Установка переменной окружения для Django
 ENV PYTHONUNBUFFERED 1
 
